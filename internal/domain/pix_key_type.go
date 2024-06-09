@@ -1,97 +1,156 @@
 package domain
 
 import (
+	"fmt"
 	"regexp"
 
 	"github.com/felipemagrassi/pix-api/internal/internal_error"
 )
 
-type PixKeyType interface {
-	ValidateKey() *internal_error.InternalError
-}
+const (
+	CnpjKeyPattern   = `^[0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2}$`
+	CpfKeyPattern    = `^[0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2}$`
+	EmailKeyPattern  = `^[a-z0-9+_.-]+@[a-z0-9.-]+$`
+	PhoneKeyPattern  = `^((?:\+?55)?)([1-9][0-9])(9[0-9]{8})$`
+	RandomKeyPattern = `^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`
+)
 
-type CnpjPixKeyType struct {
-	Name string `json:"name"`
-	key  string
-}
-type CpfPixKeyType struct {
-	Name string `json:"name"`
-	key  string
-}
-type EmailPixKeyType struct {
-	Name string `json:"name"`
-	key  string
-}
-type PhonePixKeyType struct {
-	Name string `json:"name"`
-	key  string
-}
-type RandomPixKeyType struct {
-	Name string `json:"name"`
-	key  string
-}
+type PixKeyType int
 
-func NewCnpjPixKeyType(key string) *CnpjPixKeyType {
-	return &CnpjPixKeyType{
-		Name: "CNPJ",
-		key:  key,
+const (
+	CnpjKeyType PixKeyType = iota
+	CpfKeyType
+	EmailKeyType
+	PhoneKeyType
+	RandomKeyType
+)
+
+func (pkt PixKeyType) String() string {
+	switch pkt {
+	case CnpjKeyType:
+		return "Cnpj"
+	case CpfKeyType:
+		return "Cpf"
+	case EmailKeyType:
+		return "Email"
+	case PhoneKeyType:
+		return "Phone"
+	case RandomKeyType:
+		return "Random"
+	default:
+		panic("Unknown Pix Key Type")
+
 	}
 }
 
-func NewCpfPixKeyType(key string) *CpfPixKeyType {
-	return &CpfPixKeyType{
-		Name: "CPF",
-		key:  key,
+type PixKeyTypeInterface interface {
+	ValidateKeyType(key string) *internal_error.InternalError
+	GetType() string
+}
+
+func NewPixKeyType(keyType PixKeyType) (PixKeyTypeInterface, *internal_error.InternalError) {
+	switch keyType {
+	case CnpjKeyType:
+		return &CnpjPixKeyType{keyType: keyType}, nil
+	case CpfKeyType:
+		return &CpfPixKeyType{keyType: keyType}, nil
+	case EmailKeyType:
+		return &EmailPixKeyType{keyType: keyType}, nil
+	case PhoneKeyType:
+		return &PhonePixKeyType{keyType: keyType}, nil
+	case RandomKeyType:
+		return &RandomPixKeyType{keyType: keyType}, nil
+	default:
+		return nil, internal_error.NewBadRequestError("Invalid Key Type")
 	}
 }
 
-func NewEmailPixKeyType(key string) *EmailPixKeyType {
-	return &EmailPixKeyType{
-		Name: "Email",
-		key:  key,
-	}
+type (
+	CnpjPixKeyType   struct{ keyType PixKeyType }
+	CpfPixKeyType    struct{ keyType PixKeyType }
+	EmailPixKeyType  struct{ keyType PixKeyType }
+	PhonePixKeyType  struct{ keyType PixKeyType }
+	RandomPixKeyType struct{ keyType PixKeyType }
+)
+
+func (kt *CnpjPixKeyType) GetType() string {
+	return kt.keyType.String()
 }
 
-func NewPhonePixKeyType(key string) *PhonePixKeyType {
-	return &PhonePixKeyType{
-		Name: "Phone",
-		key:  key,
-	}
+func (kt *CpfPixKeyType) GetType() string {
+	return kt.keyType.String()
 }
 
-func NewRandomPixKeyType(key string) *RandomPixKeyType {
-	return &RandomPixKeyType{
-		Name: "Random",
-		key:  key,
-	}
+func (kt *EmailPixKeyType) GetType() string {
+	return kt.keyType.String()
 }
 
-func (kt *CnpjPixKeyType) ValidateKey() *internal_error.InternalError {
-	pattern := `^[0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2}$`
-	re, err := regexp.Compile(pattern)
+func (kt *PhonePixKeyType) GetType() string {
+	return kt.keyType.String()
+}
+
+func (kt *RandomPixKeyType) GetType() string {
+	return kt.keyType.String()
+}
+
+func (kt *CnpjPixKeyType) ValidateKeyType(key string) *internal_error.InternalError {
+	re, err := regexp.Compile(CnpjKeyPattern)
 	if err != nil {
-		return internal_error.NewBadRequestError("Invalid CNPJ matching pattern")
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s key matching pattern", kt.GetType()))
 	}
 
-	if !re.MatchString(kt.key) {
-		return internal_error.NewBadRequestError("Invalid CNPJ Key")
+	if !re.MatchString(key) {
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetType()))
 	}
 
 	return nil
 }
 
-func (kt *CpfPixKeyType) ValidateKey() *internal_error.InternalError {
+func (kt *CpfPixKeyType) ValidateKeyType(key string) *internal_error.InternalError {
+	re, err := regexp.Compile(CpfKeyPattern)
+	if err != nil {
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s key matching pattern", kt.GetType()))
+	}
+
+	if !re.MatchString(key) {
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetType()))
+	}
+
 	return nil
 }
 
-func (kt *EmailPixKeyType) ValidateKey() *internal_error.InternalError {
+func (kt *EmailPixKeyType) ValidateKeyType(key string) *internal_error.InternalError {
+	re, err := regexp.Compile(EmailKeyPattern)
+	if err != nil {
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s key matching pattern", kt.GetType()))
+	}
+
+	if !re.MatchString(key) {
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetType()))
+	}
 	return nil
 }
 
-func (kt *PhonePixKeyType) ValidateKey() *internal_error.InternalError {
+func (kt *PhonePixKeyType) ValidateKeyType(key string) *internal_error.InternalError {
+	re, err := regexp.Compile(PhoneKeyPattern)
+	if err != nil {
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s key matching pattern", kt.GetType()))
+	}
+
+	if !re.MatchString(key) {
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetType()))
+	}
 	return nil
 }
 
-func (kt *RandomPixKeyType) ValidateKey() *internal_error.InternalError {
+func (kt *RandomPixKeyType) ValidateKeyType(key string) *internal_error.InternalError {
+	re, err := regexp.Compile(RandomKeyPattern)
+	if err != nil {
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s key matching pattern", kt.GetType()))
+	}
+
+	if !re.MatchString(key) {
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetType()))
+	}
 	return nil
 }
