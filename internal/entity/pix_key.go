@@ -14,6 +14,37 @@ type PixKey struct {
 	KeyType  PixKeyTypeInterface
 }
 
+type (
+	CnpjPixKeyType   struct{ KeyType PixKeyType }
+	CpfPixKeyType    struct{ KeyType PixKeyType }
+	EmailPixKeyType  struct{ KeyType PixKeyType }
+	PhonePixKeyType  struct{ KeyType PixKeyType }
+	RandomPixKeyType struct{ KeyType PixKeyType }
+)
+
+const (
+	PhoneKeyPattern  = `^((?:\+?55)?)([1-9][0-9])(9[0-9]{8})$`
+	RandomKeyPattern = `^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`
+)
+
+type PixKeyType int
+
+const (
+	CnpjKeyType PixKeyType = iota
+	CpfKeyType
+	EmailKeyType
+	PhoneKeyType
+	RandomKeyType
+)
+
+var pixKeyTypeMap = map[string]PixKeyType{
+	"cnpj":   CnpjKeyType,
+	"cpf":    CpfKeyType,
+	"email":  EmailKeyType,
+	"phone":  PhoneKeyType,
+	"random": RandomKeyType,
+}
+
 func NewPixKey(
 	keyValue string,
 	keyType string,
@@ -60,29 +91,6 @@ func (pk *PixKey) Validate() *internal_error.InternalError {
 	return nil
 }
 
-const (
-	PhoneKeyPattern  = `^((?:\+?55)?)([1-9][0-9])(9[0-9]{8})$`
-	RandomKeyPattern = `^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`
-)
-
-type PixKeyType int
-
-const (
-	CnpjKeyType PixKeyType = iota
-	CpfKeyType
-	EmailKeyType
-	PhoneKeyType
-	RandomKeyType
-)
-
-var pixKeyTypeMap = map[string]PixKeyType{
-	"cnpj":   CnpjKeyType,
-	"cpf":    CpfKeyType,
-	"email":  EmailKeyType,
-	"phone":  PhoneKeyType,
-	"random": RandomKeyType,
-}
-
 func ParsePixKeyType(pixKeyTypeStr string) (PixKeyType, bool) {
 	lowerPixKeyTypeStr := strings.ToLower(pixKeyTypeStr)
 	c, ok := pixKeyTypeMap[lowerPixKeyTypeStr]
@@ -114,14 +122,6 @@ func NewPixKeyType(keyType PixKeyType) (PixKeyTypeInterface, *internal_error.Int
 		return nil, internal_error.NewBadRequestError("Invalid Key Type")
 	}
 }
-
-type (
-	CnpjPixKeyType   struct{ KeyType PixKeyType }
-	CpfPixKeyType    struct{ KeyType PixKeyType }
-	EmailPixKeyType  struct{ KeyType PixKeyType }
-	PhonePixKeyType  struct{ KeyType PixKeyType }
-	RandomPixKeyType struct{ KeyType PixKeyType }
-)
 
 func (kt *CnpjPixKeyType) GetTypeName() string {
 	return kt.KeyType.String()
