@@ -8,10 +8,10 @@ type CreateReceiverInput struct {
 	PixKeyType  string
 }
 
-type CreateReceiverOutput struct{}
-
-type EditReceiverInput struct {
-	Id string
+type UpdateDraftedReceiverInput struct {
+	Name        string
+	Document    string
+	Email       string
+	PixKeyValue string
+	PixKeyType  string
 }
-
-type EditReceiverOutput struct{}

@@ -3,6 +3,7 @@ package entity
 import (
 	"time"
 
+	"github.com/felipemagrassi/pix-api/internal/dto"
 	"github.com/felipemagrassi/pix-api/internal/internal_error"
 	"github.com/felipemagrassi/pix-api/internal/value_object"
 	"github.com/felipemagrassi/pix-api/pkg/entity"
@@ -22,7 +23,7 @@ type Receiver struct {
 	Name          string
 	Document      value_object.Document
 	Email         value_object.Email
-	Status        ReceiverStatus
+	status        ReceiverStatus
 	Bank          string
 	Office        string
 	AccountNumber string
@@ -31,21 +32,30 @@ type Receiver struct {
 	UpdatedAt     time.Time
 }
 
-func NewReceiver(name, email, document string, pixKey *PixKey) (*Receiver, *internal_error.InternalError) {
-	newDocument, err := value_object.NewDocument(document)
+func NewReceiver(
+	createReceiverInput dto.CreateReceiverInput,
+) (*Receiver, *internal_error.InternalError) {
+	newDocument, err := value_object.NewDocument(createReceiverInput.Document)
 	if err != nil {
 		return nil, err
 	}
 
+	pixKey, err := NewPixKey(createReceiverInput.PixKeyValue, createReceiverInput.PixKeyType)
+	if err != nil {
+		return nil, err
+	}
+
+	currentTime := time.Now()
+
 	receiver := &Receiver{
 		Id:        entity.NewID(),
-		Name:      name,
+		Name:      createReceiverInput.Name,
 		Document:  newDocument,
-		Email:     value_object.Email(email),
-		Status:    Draft,
+		Email:     value_object.Email(createReceiverInput.Email),
+		status:    Draft,
 		PixKey:    pixKey,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: currentTime,
+		UpdatedAt: currentTime,
 	}
 
 	if err := receiver.Validate(); err != nil {
@@ -53,6 +63,46 @@ func NewReceiver(name, email, document string, pixKey *PixKey) (*Receiver, *inte
 	}
 
 	return receiver, nil
+}
+
+func (r *Receiver) UpdateEmail(email string) *internal_error.InternalError {
+	r.Email = value_object.Email(email)
+	return r.Validate()
+}
+
+func (r *Receiver) UpdateDraftedReceiver(
+	receiverUpdateInput dto.UpdateDraftedReceiverInput,
+) *internal_error.InternalError {
+	if r.GetStatus() == Valid {
+		return internal_error.NewBadRequestError("Receiver is already valid")
+	}
+
+	if receiverUpdateInput.Name != "" {
+		r.Name = receiverUpdateInput.Name
+	}
+
+	if receiverUpdateInput.Document != "" {
+		newDocument, err := value_object.NewDocument(receiverUpdateInput.Document)
+		if err != nil {
+			return err
+		}
+		r.Document = newDocument
+	}
+
+	if receiverUpdateInput.Email != "" {
+		r.Email = value_object.Email(receiverUpdateInput.Email)
+	}
+
+	if receiverUpdateInput.PixKeyValue != "" && receiverUpdateInput.PixKeyType != "" {
+		pixKey, err := NewPixKey(receiverUpdateInput.PixKeyValue, receiverUpdateInput.PixKeyType)
+		if err != nil {
+			return err
+		}
+		r.PixKey = pixKey
+	}
+
+	r.UpdatedAt = time.Now()
+	return r.Validate()
 }
 
 func (r *Receiver) Validate() *internal_error.InternalError {
@@ -68,4 +118,12 @@ func (r *Receiver) Validate() *internal_error.InternalError {
 	}
 
 	return nil
+}
+
+func (r *Receiver) GetStatus() ReceiverStatus {
+	return r.status
+}
+
+func (r *Receiver) ValidateReceiverStatus() {
+	r.status = Valid
 }
