@@ -18,13 +18,17 @@ const (
 )
 
 type Receiver struct {
-	Id        entity.ID
-	Name      string
-	Document  value_object.Document
-	Email     value_object.Email
-	Status    ReceiverStatus
-	PixKey    *PixKey
-	Timestamp time.Time
+	Id            entity.ID
+	Name          string
+	Document      value_object.Document
+	Email         value_object.Email
+	Status        ReceiverStatus
+	Bank          string
+	Office        string
+	AccountNumber string
+	PixKey        *PixKey
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 func NewReceiver(name, email, document string, pixKey *PixKey) (*Receiver, *internal_error.InternalError) {
@@ -34,12 +38,14 @@ func NewReceiver(name, email, document string, pixKey *PixKey) (*Receiver, *inte
 	}
 
 	receiver := &Receiver{
-		Id:       entity.NewID(),
-		Name:     name,
-		Document: newDocument,
-		Email:    value_object.Email(email),
-		Status:   Draft,
-		PixKey:   pixKey,
+		Id:        entity.NewID(),
+		Name:      name,
+		Document:  newDocument,
+		Email:     value_object.Email(email),
+		Status:    Draft,
+		PixKey:    pixKey,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	if err := receiver.Validate(); err != nil {

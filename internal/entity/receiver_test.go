@@ -20,6 +20,11 @@ func TestCanCreateReceiver(t *testing.T) {
 	assert.Equal(t, receiver.Status, Draft)
 	assert.Equal(t, receiver.Document.String(), "12345678901")
 	assert.Equal(t, receiver.PixKey, pixKey)
+	assert.Empty(t, receiver.Bank)
+	assert.Empty(t, receiver.Office)
+	assert.Empty(t, receiver.AccountNumber)
+	assert.NotEmpty(t, receiver.CreatedAt)
+	assert.NotEmpty(t, receiver.UpdatedAt)
 }
 
 func TestCanCreateReceiverWithCnpj(t *testing.T) {
@@ -35,6 +40,11 @@ func TestCanCreateReceiverWithCnpj(t *testing.T) {
 	assert.Equal(t, receiver.Status, Draft)
 	assert.Equal(t, receiver.Document.String(), "12345678901234")
 	assert.Equal(t, receiver.PixKey, pixKey)
+	assert.Empty(t, receiver.Bank)
+	assert.Empty(t, receiver.Office)
+	assert.Empty(t, receiver.AccountNumber)
+	assert.NotEmpty(t, receiver.CreatedAt)
+	assert.NotEmpty(t, receiver.UpdatedAt)
 }
 
 func TestCanCreateReceiverWithoutEmail(t *testing.T) {
@@ -50,6 +60,11 @@ func TestCanCreateReceiverWithoutEmail(t *testing.T) {
 	assert.Equal(t, receiver.Status, Draft)
 	assert.Equal(t, receiver.Document.String(), "12345678901")
 	assert.Equal(t, receiver.PixKey, pixKey)
+	assert.Empty(t, receiver.Bank)
+	assert.Empty(t, receiver.Office)
+	assert.Empty(t, receiver.AccountNumber)
+	assert.NotEmpty(t, receiver.CreatedAt)
+	assert.NotEmpty(t, receiver.UpdatedAt)
 }
 
 func TestCannotCreateReceiverWithInvalidEmail(t *testing.T) {
