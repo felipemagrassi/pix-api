@@ -3,11 +3,37 @@ package entity
 import (
 	"time"
 
-	"github.com/felipemagrassi/pix-api/internal/dto"
 	"github.com/felipemagrassi/pix-api/internal/internal_error"
 	"github.com/felipemagrassi/pix-api/internal/value_object"
 	"github.com/felipemagrassi/pix-api/pkg/entity"
 )
+
+type CreateReceiverInput struct {
+	Name        string
+	Document    string
+	Email       string
+	PixKeyValue string
+	PixKeyType  string
+}
+
+type UpdateDraftedReceiverInput struct {
+	Name        string
+	Document    string
+	Email       string
+	PixKeyValue string
+	PixKeyType  string
+}
+
+type FindReceiversInput struct {
+	Status      ReceiverStatus
+	Name        string
+	PixKeyValue string
+	PixKeyType  PixKeyType
+}
+
+type DeleteReceiversInput struct {
+	ReceiverIds []entity.ID
+}
 
 type (
 	ReceiverStatus int
@@ -33,7 +59,7 @@ type Receiver struct {
 }
 
 func NewReceiver(
-	createReceiverInput dto.CreateReceiverInput,
+	createReceiverInput CreateReceiverInput,
 ) (*Receiver, *internal_error.InternalError) {
 	newDocument, err := value_object.NewDocument(createReceiverInput.Document)
 	if err != nil {
@@ -71,7 +97,7 @@ func (r *Receiver) UpdateEmail(email string) *internal_error.InternalError {
 }
 
 func (r *Receiver) UpdateDraftedReceiver(
-	receiverUpdateInput dto.UpdateDraftedReceiverInput,
+	receiverUpdateInput UpdateDraftedReceiverInput,
 ) *internal_error.InternalError {
 	if r.GetStatus() == Valid {
 		return internal_error.NewBadRequestError("Receiver is already valid")

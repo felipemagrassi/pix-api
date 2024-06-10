@@ -3,13 +3,12 @@ package entity
 import (
 	"testing"
 
-	"github.com/felipemagrassi/pix-api/internal/dto"
 	"github.com/felipemagrassi/pix-api/internal/value_object"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCanCreateReceiver(t *testing.T) {
-	input := dto.CreateReceiverInput{
+	input := CreateReceiverInput{
 		Name:        "Felipe",
 		Document:    "12345678901",
 		Email:       "felipe@email.com",
@@ -36,7 +35,7 @@ func TestCanCreateReceiver(t *testing.T) {
 }
 
 func TestCanCreateReceiverWithCnpj(t *testing.T) {
-	input := dto.CreateReceiverInput{
+	input := CreateReceiverInput{
 		Name:        "Felipe",
 		Document:    "12345678901234",
 		Email:       "felipe@email.com",
@@ -62,7 +61,7 @@ func TestCanCreateReceiverWithCnpj(t *testing.T) {
 }
 
 func TestCanCreateReceiverWithoutEmail(t *testing.T) {
-	input := dto.CreateReceiverInput{
+	input := CreateReceiverInput{
 		Name:        "Felipe",
 		Document:    "12345678901234",
 		Email:       "",
@@ -88,7 +87,7 @@ func TestCanCreateReceiverWithoutEmail(t *testing.T) {
 }
 
 func TestCannotCreateReceiverWithInvalidEmail(t *testing.T) {
-	input := dto.CreateReceiverInput{
+	input := CreateReceiverInput{
 		Name:        "Felipe",
 		Document:    "12345678901234",
 		Email:       "123",
@@ -102,7 +101,7 @@ func TestCannotCreateReceiverWithInvalidEmail(t *testing.T) {
 }
 
 func TestCannotCreateReceiverWithInvalidCpf(t *testing.T) {
-	input := dto.CreateReceiverInput{
+	input := CreateReceiverInput{
 		Name:        "Felipe",
 		Document:    "11234",
 		Email:       "",
@@ -116,7 +115,7 @@ func TestCannotCreateReceiverWithInvalidCpf(t *testing.T) {
 }
 
 func TestCannotCreateReceiverWithLongEmail(t *testing.T) {
-	input := dto.CreateReceiverInput{
+	input := CreateReceiverInput{
 		Name:        "Felipe",
 		Document:    "12345678901234",
 		Email:       "rgKycw8zmuIlnR6eRATh98RtPVKJDvJkW6utF584mUMLrIreqtjWVeyCoEa1Y2AtYUDpeeFJSlAuu9b8Svdg1hSKIQcZLV25miSPRR6ZifeRJahDQDkkBgfgi4CWP7LbQWxWFvitZ1r26WlFDnSggsoQKyAUXdyK7srhgvCM1abYHn3WYMJ5m3XxwunSR3n8wRJvGN0T2wYKlEpMXSCZ0RSIxZj8YAbXqkJG1T4oOfVkppenJ9U661t4qJJ@email.com",
@@ -130,7 +129,7 @@ func TestCannotCreateReceiverWithLongEmail(t *testing.T) {
 }
 
 func TestCanUpdateDraftedReceiver(t *testing.T) {
-	createInput := dto.CreateReceiverInput{
+	createInput := CreateReceiverInput{
 		Name:        "Felipe",
 		Document:    "12345678901",
 		Email:       "felipe@email.com",
@@ -141,7 +140,7 @@ func TestCanUpdateDraftedReceiver(t *testing.T) {
 	createdReceiver, err := NewReceiver(createInput)
 	assert.Nil(t, err)
 
-	updateInput := dto.UpdateDraftedReceiverInput{
+	updateInput := UpdateDraftedReceiverInput{
 		Name:        "Teste",
 		Document:    "12345678902",
 		Email:       "teste@email.com",
@@ -162,7 +161,7 @@ func TestCanUpdateDraftedReceiver(t *testing.T) {
 }
 
 func TestCannotUpdateValidReceiver(t *testing.T) {
-	createInput := dto.CreateReceiverInput{
+	createInput := CreateReceiverInput{
 		Name:        "Felipe",
 		Document:    "12345678901",
 		Email:       "felipe@email.com",
@@ -175,7 +174,7 @@ func TestCannotUpdateValidReceiver(t *testing.T) {
 
 	createdReceiver.ValidateReceiverStatus()
 
-	updateInput := dto.UpdateDraftedReceiverInput{
+	updateInput := UpdateDraftedReceiverInput{
 		Name:        "Teste",
 		Document:    "12345678902",
 		Email:       "teste@email.com",
@@ -196,7 +195,7 @@ func TestCannotUpdateValidReceiver(t *testing.T) {
 }
 
 func TestCanUpdateDraftReceiverEmail(t *testing.T) {
-	createInput := dto.CreateReceiverInput{
+	createInput := CreateReceiverInput{
 		Name:        "Felipe",
 		Document:    "12345678901",
 		Email:       "felipe@email.com",
@@ -215,7 +214,7 @@ func TestCanUpdateDraftReceiverEmail(t *testing.T) {
 }
 
 func TestCanUpdateValidReceiverEmail(t *testing.T) {
-	createInput := dto.CreateReceiverInput{
+	createInput := CreateReceiverInput{
 		Name:        "Felipe",
 		Document:    "12345678901",
 		Email:       "felipe@email.com",
