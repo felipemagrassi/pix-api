@@ -8,33 +8,6 @@ import (
 	"github.com/felipemagrassi/pix-api/pkg/entity"
 )
 
-type CreateReceiverInput struct {
-	Name        string
-	Document    string
-	Email       string
-	PixKeyValue string
-	PixKeyType  string
-}
-
-type UpdateDraftedReceiverInput struct {
-	Name        string
-	Document    string
-	Email       string
-	PixKeyValue string
-	PixKeyType  string
-}
-
-type FindReceiversInput struct {
-	Status      ReceiverStatus
-	Name        string
-	PixKeyValue string
-	PixKeyType  PixKeyType
-}
-
-type DeleteReceiversInput struct {
-	ReceiverIds []entity.ID
-}
-
 type (
 	ReceiverStatus int
 )
@@ -58,15 +31,17 @@ type Receiver struct {
 	UpdatedAt     time.Time
 }
 
+type ReceiverRepositoryInterface interface{}
+
 func NewReceiver(
-	createReceiverInput CreateReceiverInput,
+	document, pixKeyValue, pixKeyType, name, email string,
 ) (*Receiver, *internal_error.InternalError) {
-	newDocument, err := value_object.NewDocument(createReceiverInput.Document)
+	newDocument, err := value_object.NewDocument(document)
 	if err != nil {
 		return nil, err
 	}
 
-	pixKey, err := NewPixKey(createReceiverInput.PixKeyValue, createReceiverInput.PixKeyType)
+	pixKey, err := NewPixKey(pixKeyValue, pixKeyType)
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +50,9 @@ func NewReceiver(
 
 	receiver := &Receiver{
 		Id:        entity.NewID(),
-		Name:      createReceiverInput.Name,
+		Name:      name,
 		Document:  newDocument,
-		Email:     value_object.Email(createReceiverInput.Email),
+		Email:     value_object.Email(email),
 		status:    Draft,
 		PixKey:    pixKey,
 		CreatedAt: currentTime,
@@ -97,30 +72,30 @@ func (r *Receiver) UpdateEmail(email string) *internal_error.InternalError {
 }
 
 func (r *Receiver) UpdateDraftedReceiver(
-	receiverUpdateInput UpdateDraftedReceiverInput,
+	document, pixKeyValue, pixKeyType, name, email string,
 ) *internal_error.InternalError {
 	if r.GetStatus() == Valid {
 		return internal_error.NewBadRequestError("Receiver is already valid")
 	}
 
-	if receiverUpdateInput.Name != "" {
-		r.Name = receiverUpdateInput.Name
+	if name != "" {
+		r.Name = name
 	}
 
-	if receiverUpdateInput.Document != "" {
-		newDocument, err := value_object.NewDocument(receiverUpdateInput.Document)
+	if document != "" {
+		newDocument, err := value_object.NewDocument(document)
 		if err != nil {
 			return err
 		}
 		r.Document = newDocument
 	}
 
-	if receiverUpdateInput.Email != "" {
-		r.Email = value_object.Email(receiverUpdateInput.Email)
+	if email != "" {
+		r.Email = value_object.Email(email)
 	}
 
-	if receiverUpdateInput.PixKeyValue != "" && receiverUpdateInput.PixKeyType != "" {
-		pixKey, err := NewPixKey(receiverUpdateInput.PixKeyValue, receiverUpdateInput.PixKeyType)
+	if pixKeyValue != "" && pixKeyType != "" {
+		pixKey, err := NewPixKey(pixKeyValue, pixKeyType)
 		if err != nil {
 			return err
 		}
