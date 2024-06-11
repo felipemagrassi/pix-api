@@ -65,7 +65,7 @@ func (r *ReceiverController) FindReceivers(c *gin.Context) {
 	receivers, err := r.receiverUseCase.FindReceivers(c.Request.Context(), findReceiverInput)
 	if err != nil {
 		errRest := rest_err.ConvertError(err)
-		slog.Error("error finding receivers", errRest.Error())
+		slog.Error("error finding receivers")
 		c.JSON(errRest.Code, errRest)
 		return
 	}
@@ -100,7 +100,7 @@ func (r *ReceiverController) FindReceiverById(c *gin.Context) {
 	receiver, err := r.receiverUseCase.FindReceiverById(c.Request.Context(), receiverId)
 	if err != nil {
 		errRest := rest_err.ConvertError(err)
-		slog.Error("error finding receiver", errRest.Error())
+		slog.Error("error finding receiver")
 		c.JSON(errRest.Code, errRest)
 		return
 	}
@@ -126,7 +126,7 @@ func (r *ReceiverController) CreateReceiver(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&createReceiverInput); err != nil {
 		restErr := rest_err.NewBadRequestError("Invalid JSON", rest_err.Causes{Field: "json", Message: "Invalid JSON"})
-		slog.Error("error binding json", restErr.Error())
+		slog.Error("error binding json")
 		c.JSON(restErr.Code, restErr)
 		return
 	}
@@ -134,7 +134,7 @@ func (r *ReceiverController) CreateReceiver(c *gin.Context) {
 	err := r.receiverUseCase.CreateReceiver(c.Request.Context(), createReceiverInput)
 	if err != nil {
 		restErr := rest_err.ConvertError(err)
-		slog.Error("error creating receiver", restErr.Error())
+		slog.Error("error creating receiver")
 		c.JSON(restErr.Code, restErr)
 		return
 	}
@@ -162,7 +162,7 @@ func (r *ReceiverController) UpdateReceiver(c *gin.Context) {
 	receiverId, parseErr := pkg_entity.ParseID(id)
 	if parseErr != nil {
 		restErr := rest_err.NewBadRequestError("Invalid ID", rest_err.Causes{Field: "id", Message: "Invalid ID"})
-		slog.Error("error parsing id", restErr.Error())
+		slog.Error("error parsing id")
 		c.JSON(restErr.Code, restErr)
 		return
 	}
@@ -179,7 +179,7 @@ func (r *ReceiverController) UpdateReceiver(c *gin.Context) {
 	err := r.receiverUseCase.UpdateReceiver(c.Request.Context(), receiverId, updateReceiverInput)
 	if err != nil {
 		restErr := rest_err.ConvertError(err)
-		slog.Error("error updating receiver", restErr.Error())
+		slog.Error("error updating receiver")
 		c.JSON(restErr.Code, restErr)
 		return
 	}
@@ -208,7 +208,7 @@ func (r *ReceiverController) DeleteReceivers(c *gin.Context) {
 		receiverId, parseErr := pkg_entity.ParseID(id)
 		if parseErr != nil {
 			restErr := rest_err.NewBadRequestError("Invalid ID", rest_err.Causes{Field: "id", Message: "Invalid ID"})
-			slog.Error("error parsing id", restErr.Error())
+			slog.Error("error parsing id")
 			c.JSON(restErr.Code, restErr)
 			return
 		}
@@ -218,7 +218,7 @@ func (r *ReceiverController) DeleteReceivers(c *gin.Context) {
 	err := r.receiverUseCase.DeleteReceivers(c.Request.Context(), receiver_usecase.DeleteReceiversInput{ReceiverIds: receiverIds})
 	if err != nil {
 		restErr := rest_err.ConvertError(err)
-		slog.Error("error deleting receivers", restErr.Error())
+		slog.Error("error deleting receivers")
 		c.JSON(restErr.Code, restErr)
 		return
 	}

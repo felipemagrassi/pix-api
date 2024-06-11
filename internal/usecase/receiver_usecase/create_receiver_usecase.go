@@ -25,7 +25,7 @@ func (uc *ReceiverUseCase) CreateReceiver(ctx context.Context, input CreateRecei
 		input.Email,
 	)
 	if err != nil {
-		slog.Error("error creating receiver entity", err)
+		slog.Error("error creating receiver entity")
 		return err
 	}
 

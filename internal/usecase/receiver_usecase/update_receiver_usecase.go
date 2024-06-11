@@ -19,7 +19,7 @@ type UpdateReceiverInput struct {
 func (uc *ReceiverUseCase) UpdateReceiver(ctx context.Context, receiverId pkg_entity.ID, input UpdateReceiverInput) *internal_error.InternalError {
 	receiver, err := uc.receiverRepository.FindReceiver(ctx, receiverId)
 	if err != nil {
-		slog.Error("error finding receiver", err.Error())
+		slog.Error("error finding receiver")
 		return err
 	}
 
@@ -30,7 +30,7 @@ func (uc *ReceiverUseCase) UpdateReceiver(ctx context.Context, receiverId pkg_en
 		input.Name,
 		input.Email,
 	); err != nil {
-		slog.Error("error updating receiver", err.Error())
+		slog.Error("error updating receiver")
 		return err
 	}
 

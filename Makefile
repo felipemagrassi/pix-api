@@ -1,7 +1,10 @@
+.PHONY: fmt test up seed cover install-dependencies install-all
+
 fmt:
 	go fmt ./...
 
-test: go test ./... --coverprofile coverage.out
+test: 
+	go test ./... --coverprofile coverage.out
 
 up:
 	docker-compose up -d --build
