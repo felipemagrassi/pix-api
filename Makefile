@@ -3,6 +3,9 @@ fmt:
 
 test: go test ./... --coverprofile coverage.out
 
+up:
+	docker-compose up -d --build
+
 cover:
 	go tool cover -html coverage.out
 

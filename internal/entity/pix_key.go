@@ -99,7 +99,7 @@ func ParsePixKeyType(pixKeyTypeStr string) (PixKeyType, bool) {
 }
 
 func (pkt PixKeyType) String() string {
-	return []string{"Cnpj", "Cpf", "Email", "Phone", "Random"}[pkt]
+	return []string{"Cnpj", "Cpf", "Email", "Phone", "Random"}[pkt-1]
 }
 
 type PixKeyTypeInterface interface {

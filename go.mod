@@ -9,7 +9,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.9.0
-	go.uber.org/zap v1.27.0
+	golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0
 )
 
 require (
@@ -46,7 +46,6 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/mod v0.16.0 // indirect
