@@ -38,8 +38,7 @@ func main() {
 	router.GET("/receiver", receiverController.FindReceivers)
 	router.GET("/receiver/:receiverId", receiverController.FindReceiverById)
 	router.POST("/receiver", receiverController.CreateReceiver)
-	router.PUT("/receiver/draft/:receiverId", receiverController.UpdateDraftReceiver)
-	router.PUT("/receiver/:receiverId", receiverController.UpdateReceiverEmail)
+	router.PUT("/receiver/:receiverId", receiverController.UpdateReceiver)
 	router.DELETE("/receiver", receiverController.DeleteReceivers)
 
 	router.Run(config.WebServerPort)

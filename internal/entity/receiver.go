@@ -72,16 +72,55 @@ func NewReceiver(
 	return receiver, nil
 }
 
-func (r *Receiver) UpdateEmail(email string) *internal_error.InternalError {
-	r.Email = value_object.Email(email)
-	return r.Validate()
-}
-
-func (r *Receiver) UpdateDraftedReceiver(
+func (r *Receiver) UpdateReceiver(
 	document, pixKeyValue, pixKeyType, name, email string,
 ) *internal_error.InternalError {
 	if r.GetStatus() == Valid {
+		return r.updateValidReceiver(email)
+	}
+
+	return r.updateDraftReceiver(document, pixKeyValue, pixKeyType, name, email)
+}
+
+func (r *Receiver) Validate() *internal_error.InternalError {
+	if r.Email.String() != "" {
+		err := r.Email.Validate()
+		if err != nil {
+			return err
+		}
+	}
+
+	if r.PixKey == nil {
+		return internal_error.NewBadRequestError("Invalid Receiver")
+	}
+
+	return nil
+}
+
+func (r *Receiver) GetStatus() ReceiverStatus {
+	return r.status
+}
+
+func (r *Receiver) ValidateReceiverStatus() {
+	r.status = Valid
+}
+
+func (r *Receiver) updateValidReceiver(email string) *internal_error.InternalError {
+	if email != "" {
+		r.Email = value_object.Email(email)
+		r.UpdatedAt = time.Now()
+	}
+
+	return r.Validate()
+}
+
+func (r *Receiver) updateDraftReceiver(document, pixKeyValue, pixKeyType, name, email string) *internal_error.InternalError {
+	if r.GetStatus() == Valid {
 		return internal_error.NewBadRequestError("Receiver is already valid")
+	}
+
+	if name == "" && document == "" && email == "" && pixKeyValue == "" && pixKeyType == "" {
+		return nil
 	}
 
 	if name != "" {
@@ -110,27 +149,4 @@ func (r *Receiver) UpdateDraftedReceiver(
 
 	r.UpdatedAt = time.Now()
 	return r.Validate()
-}
-
-func (r *Receiver) Validate() *internal_error.InternalError {
-	if r.Email.String() != "" {
-		err := r.Email.Validate()
-		if err != nil {
-			return err
-		}
-	}
-
-	if r.PixKey == nil {
-		return internal_error.NewBadRequestError("Invalid Receiver")
-	}
-
-	return nil
-}
-
-func (r *Receiver) GetStatus() ReceiverStatus {
-	return r.status
-}
-
-func (r *Receiver) ValidateReceiverStatus() {
-	r.status = Valid
 }

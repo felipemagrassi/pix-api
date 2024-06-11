@@ -7,7 +7,7 @@ import (
 	pkg_entity "github.com/felipemagrassi/pix-api/pkg/entity"
 )
 
-type UpdateDraftedReceiverInput struct {
+type UpdateReceiverInput struct {
 	Name        string
 	Document    string
 	Email       string
@@ -15,36 +15,19 @@ type UpdateDraftedReceiverInput struct {
 	PixKeyType  string
 }
 
-type UpdateValidReceiverInput struct {
-	Email string
-}
-
-func (uc *ReceiverUseCase) UpdateDraftedReceiver(ctx context.Context, receiverId pkg_entity.ID, input UpdateDraftedReceiverInput) *internal_error.InternalError {
+func (uc *ReceiverUseCase) UpdateReceiver(ctx context.Context, receiverId pkg_entity.ID, input UpdateReceiverInput) *internal_error.InternalError {
 	receiver, err := uc.receiverRepository.FindReceiver(ctx, receiverId)
 	if err != nil {
 		return err
 	}
 
-	if err := receiver.UpdateDraftedReceiver(
+	if err := receiver.UpdateReceiver(
 		input.Name,
 		input.Document,
 		input.Email,
 		input.PixKeyValue,
 		input.PixKeyType,
 	); err != nil {
-		return err
-	}
-
-	return uc.receiverRepository.UpdateReceiver(ctx, receiver)
-}
-
-func (uc *ReceiverUseCase) UpdateValidReceiver(ctx context.Context, receiverId pkg_entity.ID, input UpdateValidReceiverInput) *internal_error.InternalError {
-	receiver, err := uc.receiverRepository.FindReceiver(ctx, receiverId)
-	if err != nil {
-		return err
-	}
-
-	if err := receiver.UpdateEmail(input.Email); err != nil {
 		return err
 	}
 

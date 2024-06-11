@@ -14,14 +14,9 @@ type ReceiverUseCaseInterface interface {
 		input CreateReceiverInput,
 	) *internal_error.InternalError
 
-	UpdateValidReceiver(
+	UpdateReceiver(
 		ctx context.Context,
-		receiverId pkg_entity.ID, input UpdateValidReceiverInput,
-	) *internal_error.InternalError
-
-	UpdateDraftedReceiver(
-		ctx context.Context,
-		receiverId pkg_entity.ID, input UpdateDraftedReceiverInput,
+		receiverId pkg_entity.ID, input UpdateReceiverInput,
 	) *internal_error.InternalError
 
 	FindReceivers(

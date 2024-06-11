@@ -149,7 +149,7 @@ func TestCanUpdateDraftedReceiver(t *testing.T) {
 		"pixKeyType":  "Cpf",
 	}
 
-	err = createdReceiver.UpdateDraftedReceiver(updateInput["document"], updateInput["pixKeyValue"], updateInput["pixKeyType"], updateInput["name"], updateInput["email"])
+	err = createdReceiver.UpdateReceiver(updateInput["document"], updateInput["pixKeyValue"], updateInput["pixKeyType"], updateInput["name"], updateInput["email"])
 	assert.Nil(t, err)
 
 	assert.Equal(t, createdReceiver.Name, updateInput["name"])
@@ -161,7 +161,7 @@ func TestCanUpdateDraftedReceiver(t *testing.T) {
 	assert.NotEqual(t, createdReceiver.CreatedAt, createdReceiver.UpdatedAt)
 }
 
-func TestCannotUpdateValidReceiver(t *testing.T) {
+func TestOnlyUpdatesEmailOnValidReceiver(t *testing.T) {
 	createInput := map[string]string{
 		"name":        "Felipe",
 		"document":    "12345678901",
@@ -183,16 +183,16 @@ func TestCannotUpdateValidReceiver(t *testing.T) {
 		"pixKeyType":  "Cpf",
 	}
 
-	err = createdReceiver.UpdateDraftedReceiver(updateInput["document"], updateInput["pixKeyValue"], updateInput["pixKeyType"], updateInput["name"], updateInput["email"])
+	err = createdReceiver.UpdateReceiver(updateInput["document"], updateInput["pixKeyValue"], updateInput["pixKeyType"], updateInput["name"], updateInput["email"])
 	assert.Error(t, err)
 
 	assert.Equal(t, createdReceiver.Name, createInput["name"])
-	assert.Equal(t, createdReceiver.Email, value_object.Email(createInput["email"]))
+	assert.Equal(t, createdReceiver.Email, value_object.Email(updateInput["email"]))
 	assert.Equal(t, createdReceiver.Document.String(), createInput["document"])
 	assert.Equal(t, createdReceiver.GetStatus(), Valid)
 	assert.Equal(t, createdReceiver.PixKey.KeyValue, createInput["pixKeyValue"])
 	assert.Equal(t, createdReceiver.PixKey.KeyType.GetTypeName(), createInput["pixKeyType"])
-	assert.Equal(t, createdReceiver.CreatedAt, createdReceiver.UpdatedAt)
+	assert.NotEqual(t, createdReceiver.CreatedAt, createdReceiver.UpdatedAt)
 }
 
 func TestCanUpdateDraftReceiverEmail(t *testing.T) {
@@ -208,7 +208,7 @@ func TestCanUpdateDraftReceiverEmail(t *testing.T) {
 	assert.Nil(t, err)
 
 	newEmail := "felipe1@email.com"
-	err = createdReceiver.UpdateEmail(newEmail)
+	err = createdReceiver.UpdateReceiver("", "", "", "", newEmail)
 	assert.Nil(t, err)
 
 	assert.Equal(t, createdReceiver.Email, value_object.Email(newEmail))
@@ -230,7 +230,7 @@ func TestCanUpdateValidReceiverEmail(t *testing.T) {
 	createdReceiver.ValidateReceiverStatus()
 
 	newEmail := "felipe1@email.com"
-	err = createdReceiver.UpdateEmail(newEmail)
+	err = createdReceiver.UpdateReceiver("", "", "", "", newEmail)
 	assert.Nil(t, err)
 
 	assert.Equal(t, createdReceiver.Email, value_object.Email(newEmail))
