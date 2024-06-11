@@ -1,6 +1,8 @@
 package receiver_controller
 
 import (
+	"log/slog"
+
 	"github.com/felipemagrassi/pix-api/internal/usecase/receiver_usecase"
 	pkg_entity "github.com/felipemagrassi/pix-api/pkg/entity"
 	"github.com/gin-gonic/gin"
@@ -55,12 +57,14 @@ func (r *ReceiverController) CreateReceiver(c *gin.Context) {
 	var createReceiverInput receiver_usecase.CreateReceiverInput
 
 	if err := c.ShouldBindJSON(&createReceiverInput); err != nil {
+		slog.Error("error binding json", err)
 		c.JSON(400, err)
 		return
 	}
 
 	err := r.receiverUseCase.CreateReceiver(c.Request.Context(), createReceiverInput)
 	if err != nil {
+		slog.Error("error creating receiver", err)
 		c.JSON(500, err)
 		return
 	}

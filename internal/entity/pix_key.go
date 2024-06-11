@@ -104,6 +104,7 @@ func (pkt PixKeyType) String() string {
 type PixKeyTypeInterface interface {
 	ValidateKeyType(key string) *internal_error.InternalError
 	GetTypeName() string
+	Value() PixKeyType
 }
 
 func NewPixKeyType(keyType PixKeyType) (PixKeyTypeInterface, *internal_error.InternalError) {
@@ -141,6 +142,26 @@ func (kt *PhonePixKeyType) GetTypeName() string {
 
 func (kt *RandomPixKeyType) GetTypeName() string {
 	return kt.KeyType.String()
+}
+
+func (kt *CnpjPixKeyType) Value() PixKeyType {
+	return PixKeyType(CnpjKeyType)
+}
+
+func (kt *CpfPixKeyType) Value() PixKeyType {
+	return PixKeyType(CpfKeyType)
+}
+
+func (kt *EmailPixKeyType) Value() PixKeyType {
+	return PixKeyType(EmailKeyType)
+}
+
+func (kt *PhonePixKeyType) Value() PixKeyType {
+	return PixKeyType(PhoneKeyType)
+}
+
+func (kt *RandomPixKeyType) Value() PixKeyType {
+	return PixKeyType(RandomKeyType)
 }
 
 func (kt *CnpjPixKeyType) ValidateKeyType(key string) *internal_error.InternalError {

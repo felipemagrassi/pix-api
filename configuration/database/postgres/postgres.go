@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"log/slog"
 
-	"github.com/felipemagrassi/pix-api/configuration/logger"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/jmoiron/sqlx"
 
@@ -15,30 +15,30 @@ import (
 func InitializeDatabase(ctx context.Context, databaseURL string) (*sqlx.DB, error) {
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
-		logger.Error("error connecting to database", err)
+		slog.Error("error connecting to database", err)
 		return nil, err
 	}
 
 	if err := db.PingContext(ctx); err != nil {
-		logger.Error("error pinging database", err)
+		slog.Error("error connecting to database", err)
 		return nil, err
 	}
 
 	migrationsSource := "file://db/migrations"
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
-		logger.Error("error creating migration driver", err)
+		slog.Error("error creating migration driver", err)
 		return nil, err
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(migrationsSource, "postgres", driver)
 	if err != nil {
-		logger.Error("error creating migration", err)
+		slog.Error("error creating migration", err)
 		return nil, err
 	}
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		logger.Error("error running migration", err)
+		slog.Error("error running migration", err)
 		return nil, err
 	}
 

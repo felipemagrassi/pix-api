@@ -2,6 +2,7 @@ package receiver_usecase
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/felipemagrassi/pix-api/internal/entity"
 	"github.com/felipemagrassi/pix-api/internal/internal_error"
@@ -24,6 +25,7 @@ func (uc *ReceiverUseCase) CreateReceiver(ctx context.Context, input CreateRecei
 		input.Email,
 	)
 	if err != nil {
+		slog.Error("error creating receiver entity", err)
 		return err
 	}
 
