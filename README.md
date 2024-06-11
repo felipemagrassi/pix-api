@@ -10,6 +10,15 @@ Run the following command to start the project:
 make up
 ```
 
+The project will be available at `http://localhost:8080`
+
+Having 5 endpoints:
+    - POST /receiver
+    - GET /receiver/{id}
+    - GET /receiver/
+    - PUT /receiver/{id}
+    - DELETe /receiver/{id}
+
 ## Seeding the database
 
 Run the following command to seed the database with sample accounts
@@ -28,7 +37,7 @@ make test
 
 ## Documentation
 
-Access the API documentation at `http://localhost:8080/docs/index.html`
+If you are running the project locally, you can access the API documentation at `http://localhost:8080/docs/index.html`
 
 ## Roadmap
 
