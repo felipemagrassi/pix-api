@@ -1,10 +1,11 @@
-package database
+package receiver_repository
 
 import (
 	"context"
 
 	"github.com/felipemagrassi/pix-api/internal/entity"
 	"github.com/felipemagrassi/pix-api/internal/internal_error"
+	pkg_entity "github.com/felipemagrassi/pix-api/pkg/entity"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -16,7 +17,7 @@ func NewReceiverRepository(db *sqlx.DB) *ReceiverRepository {
 	return &ReceiverRepository{Db: db}
 }
 
-func (r *ReceiverRepository) FindReceiver(ctx context.Context, id string) (*entity.Receiver, *internal_error.InternalError) {
+func (r *ReceiverRepository) FindReceiver(ctx context.Context, id pkg_entity.ID) (*entity.Receiver, *internal_error.InternalError) {
 	var receiver entity.Receiver
 	err := r.Db.GetContext(ctx, &receiver, "SELECT * FROM receivers WHERE id = $1", id)
 	if err != nil {
@@ -44,7 +45,7 @@ func (r *ReceiverRepository) UpdateReceiver(ctx context.Context, receiver *entit
 	return nil
 }
 
-func (r *ReceiverRepository) DeleteManyReceivers(ctx context.Context, ids []string) *internal_error.InternalError {
+func (r *ReceiverRepository) DeleteManyReceivers(ctx context.Context, ids []pkg_entity.ID) *internal_error.InternalError {
 	_, err := r.Db.ExecContext(ctx, "DELETE FROM receivers WHERE id = ANY($1)", ids)
 	if err != nil {
 		return internal_error.NewInternalServerError("error deleting receivers")
