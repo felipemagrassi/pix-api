@@ -107,7 +107,7 @@ func (r *ReceiverRepository) CreateReceiver(ctx context.Context, receiver *entit
 }
 
 func (r *ReceiverRepository) UpdateReceiver(ctx context.Context, receiver *entity.Receiver) *internal_error.InternalError {
-	_, err := r.Db.ExecContext(ctx, "UPDATE receivers SET name = $1, document = $2, email = $3, status = $4, pix_key = $5, pix_key_type = $6, bank = $7, office = $8, account_number = $9, updated_at = $10 WHERE receiver_id = $11", receiver.Name, receiver.Document.String(), receiver.Email.String(), receiver.GetStatus(), receiver.PixKey.KeyValue, receiver.PixKey.KeyType, receiver.Bank, receiver.Office, receiver.AccountNumber, receiver.UpdatedAt, receiver.ReceiverId)
+	_, err := r.Db.ExecContext(ctx, "UPDATE receivers SET name = $1, document = $2, email = $3, status = $4, pix_key = $5, pix_key_type = $6, bank = $7, office = $8, account_number = $9, updated_at = $10 WHERE receiver_id = $11", receiver.Name, receiver.Document.String(), receiver.Email.String(), receiver.GetStatus(), receiver.PixKey.KeyValue, receiver.PixKey.KeyType.Value(), receiver.Bank, receiver.Office, receiver.AccountNumber, receiver.UpdatedAt, receiver.ReceiverId)
 	if err != nil {
 		slog.Error("error updating receiver", err)
 		return internal_error.NewInternalServerError("error updating receiver")
