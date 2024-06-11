@@ -46,7 +46,7 @@ func NewDocument(document string) (Document, *internal_error.InternalError) {
 		return cnpj, nil
 	}
 
-	return nil, internal_error.NewBadRequestError("Invalid Document")
+	return nil, internal_error.NewBadRequestError("Invalid Document", internal_error.Causes{Field: "document", Message: "Invalid Document"})
 }
 
 func NewCPF(cpf string) (CPF, *internal_error.InternalError) {
@@ -73,11 +73,16 @@ func (cpf CPF) Validate() *internal_error.InternalError {
 	re, err := regexp.Compile(CpfKeyPattern)
 	if err != nil {
 		message := fmt.Sprintf("Error compiling regex: %s", err.Error())
-		return internal_error.NewInternalServerError(message)
+		return internal_error.NewInternalServerError(message, err)
 	}
 
 	if !re.MatchString(cpf.String()) {
-		return internal_error.NewBadRequestError("Invalid CPF")
+		cause := internal_error.Causes{
+			Field:   "cpf",
+			Message: "Invalid CPF",
+		}
+
+		return internal_error.NewBadRequestError("Invalid CPF", cause)
 	}
 
 	return nil
@@ -87,11 +92,16 @@ func (cnpj CNPJ) Validate() *internal_error.InternalError {
 	re, err := regexp.Compile(CnpjKeyPattern)
 	if err != nil {
 		message := fmt.Sprintf("Error compiling regex: %s", err.Error())
-		return internal_error.NewInternalServerError(message)
+		return internal_error.NewInternalServerError(message, err)
 	}
 
 	if !re.MatchString(cnpj.String()) {
-		return internal_error.NewBadRequestError("Invalid CNPJ")
+		cause := internal_error.Causes{
+			Field:   "cnpj",
+			Message: "Invalid CNPJ",
+		}
+
+		return internal_error.NewBadRequestError("Invalid CNPJ", cause)
 	}
 
 	return nil

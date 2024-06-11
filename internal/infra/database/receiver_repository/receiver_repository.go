@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"time"
 
 	"github.com/felipemagrassi/pix-api/internal/entity"
@@ -51,43 +52,44 @@ func (r *ReceiverRepository) FindReceiver(ctx context.Context, id pkg_entity.ID)
 func (r *ReceiverRepository) FindReceivers(ctx context.Context, status entity.ReceiverStatus, name, pixKeyValue string, pixKeyType entity.PixKeyType) ([]entity.Receiver, *internal_error.InternalError) {
 	var receivers []entity.Receiver
 
-	baseQuery := "SELECT receiver_id, name, document, bank, office, account_number, status FROM receivers WHERE 1=1"
+	fmt.Printf("status: %d, name: %s, pixKeyValue: %s, pixKeyType: %d\n", status, name, pixKeyValue, pixKeyType)
+
+	baseQuery := "SELECT receiver_id, name, document, bank, office, account_number, status,pix_key, pix_key_type FROM receivers WHERE 1=1"
 
 	args := []interface{}{}
 
 	if status != -1 {
-		baseQuery += " AND status = $1"
 		args = append(args, status)
+		baseQuery += " AND status = $" + strconv.Itoa(len(args))
 	}
 
 	if name != "" {
-		baseQuery += " AND name ILIKE %$2%"
 		args = append(args, name)
+		baseQuery += " AND name LIKE $" + strconv.Itoa(len(args))
 	}
 
 	if pixKeyValue != "" {
-		baseQuery += " AND pix_key = $3"
 		args = append(args, pixKeyValue)
+		baseQuery += " AND pix_key = $" + strconv.Itoa(len(args))
 	}
 
 	if pixKeyType != -1 {
-		baseQuery += " AND pix_key_type = $4"
 		args = append(args, pixKeyType)
+		baseQuery += " AND pix_key_type = $" + strconv.Itoa(len(args))
 	}
 
-	defaultOrder := " ORDER BY created_at DESC"
-	baseQuery += defaultOrder
+	fmt.Printf(baseQuery)
 
 	rows, err := r.Db.QueryxContext(ctx, baseQuery, args...)
 	if err != nil {
-		return nil, internal_error.NewInternalServerError("error finding receivers")
+		return nil, internal_error.NewInternalServerError("error finding receivers", err)
 	}
 
 	for rows.Next() {
 		var receiver ReceiverEntity
 		err := rows.StructScan(&receiver)
 		if err != nil {
-			return nil, internal_error.NewInternalServerError("error finding receivers")
+			return nil, internal_error.NewInternalServerError("error finding receivers", err)
 		}
 
 		receivers = append(receivers, mapReceiverEntityToReceiver(receiver))
@@ -100,7 +102,7 @@ func (r *ReceiverRepository) CreateReceiver(ctx context.Context, receiver *entit
 	_, err := r.Db.ExecContext(ctx, "INSERT INTO receivers (receiver_id, name, document, email, status, pix_key, pix_key_type, bank, office, account_number, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)", receiver.ReceiverId, receiver.Name, receiver.Document.String(), receiver.Email.String(), receiver.GetStatus(), receiver.PixKey.KeyValue, receiver.PixKey.KeyType.Value(), receiver.Bank, receiver.Office, receiver.AccountNumber, receiver.CreatedAt, receiver.UpdatedAt)
 	if err != nil {
 		slog.Error("error creating receiver", err)
-		return internal_error.NewInternalServerError("error creating receiver")
+		return internal_error.NewInternalServerError("error creating receiver", err)
 	}
 
 	return nil
@@ -110,7 +112,7 @@ func (r *ReceiverRepository) UpdateReceiver(ctx context.Context, receiver *entit
 	_, err := r.Db.ExecContext(ctx, "UPDATE receivers SET name = $1, document = $2, email = $3, status = $4, pix_key = $5, pix_key_type = $6, bank = $7, office = $8, account_number = $9, updated_at = $10 WHERE receiver_id = $11", receiver.Name, receiver.Document.String(), receiver.Email.String(), receiver.GetStatus(), receiver.PixKey.KeyValue, receiver.PixKey.KeyType.Value(), receiver.Bank, receiver.Office, receiver.AccountNumber, receiver.UpdatedAt, receiver.ReceiverId)
 	if err != nil {
 		slog.Error("error updating receiver", err)
-		return internal_error.NewInternalServerError("error updating receiver")
+		return internal_error.NewInternalServerError("error updating receiver", err)
 	}
 
 	return nil
@@ -131,7 +133,7 @@ func (r *ReceiverRepository) DeleteManyReceivers(ctx context.Context, ids []pkg_
 	res, err := r.Db.ExecContext(ctx, query)
 	if err != nil {
 		slog.Error("error deleting receivers", err)
-		return internal_error.NewInternalServerError("error deleting receivers")
+		return internal_error.NewInternalServerError("error deleting receivers", err)
 	}
 
 	if rowsAffected, _ := res.RowsAffected(); rowsAffected == 0 {

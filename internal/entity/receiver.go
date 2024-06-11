@@ -68,7 +68,7 @@ func NewReceiver(
 	}
 
 	if err := receiver.Validate(); err != nil {
-		return nil, internal_error.NewBadRequestError("Invalid Receiver")
+		return nil, err
 	}
 
 	return receiver, nil
@@ -93,7 +93,7 @@ func (r *Receiver) Validate() *internal_error.InternalError {
 	}
 
 	if r.PixKey == nil {
-		return internal_error.NewBadRequestError("Invalid Receiver")
+		return internal_error.NewBadRequestError("Invalid Receiver", internal_error.Causes{Field: "pix_key", Message: "Pix Key is required"})
 	}
 
 	return nil
@@ -118,7 +118,7 @@ func (r *Receiver) updateValidReceiver(email string) *internal_error.InternalErr
 
 func (r *Receiver) updateDraftReceiver(document, pixKeyValue, pixKeyType, name, email string) *internal_error.InternalError {
 	if r.GetStatus() == Valid {
-		return internal_error.NewBadRequestError("Receiver is already valid")
+		return internal_error.NewBadRequestError("Receiver is already valid", internal_error.Causes{Field: "status", Message: "Receiver is already valid"})
 	}
 
 	if name == "" && document == "" && email == "" && pixKeyValue == "" && pixKeyType == "" {

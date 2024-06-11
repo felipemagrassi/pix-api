@@ -31,11 +31,11 @@ func (e Email) Validate() *internal_error.InternalError {
 	re, err := regexp.Compile(EmailKeyPattern)
 	if err != nil {
 		message := fmt.Sprintf("Error compiling regex: %s", err.Error())
-		return internal_error.NewInternalServerError(message)
+		return internal_error.NewInternalServerError(message, err)
 	}
 
 	if !re.MatchString(e.String()) {
-		return internal_error.NewBadRequestError("Invalid Email")
+		return internal_error.NewBadRequestError("Invalid Email", internal_error.Causes{Field: "email", Message: "Invalid Email"})
 	}
 
 	return nil

@@ -52,7 +52,7 @@ func NewPixKey(
 ) (*PixKey, *internal_error.InternalError) {
 	parsedKeyType, ok := ParsePixKeyType(keyType)
 	if !ok {
-		return nil, internal_error.NewBadRequestError("Invalid pix key type")
+		return nil, internal_error.NewBadRequestError("Invalid pix key type", internal_error.Causes{Field: "key_type", Message: "Invalid Key Type"})
 	}
 
 	newPixKeyType, err := NewPixKeyType(parsedKeyType)
@@ -74,19 +74,19 @@ func NewPixKey(
 
 func (pk *PixKey) Validate() *internal_error.InternalError {
 	if pk.KeyValue == "" {
-		return internal_error.NewBadRequestError("Invalid pix key")
+		return internal_error.NewBadRequestError("Invalid pix key", internal_error.Causes{Field: "key_value", Message: "Key Value is required"})
 	}
 
 	if pk.KeyType.GetTypeName() == "" {
-		return internal_error.NewBadRequestError("Invalid pix key")
+		return internal_error.NewBadRequestError("Invalid pix key", internal_error.Causes{Field: "key_type", Message: "Key Type is required"})
 	}
 
 	if len(pk.KeyValue) > 140 {
-		return internal_error.NewBadRequestError("Invalid pix key")
+		return internal_error.NewBadRequestError("Invalid pix key", internal_error.Causes{Field: "key_value", Message: "Key Value must be less than 140 characters"})
 	}
 
 	if pk.KeyType.ValidateKeyType(pk.KeyValue) != nil {
-		return internal_error.NewBadRequestError("Invalid pix key")
+		return internal_error.NewBadRequestError("Invalid pix key", internal_error.Causes{Field: "key_value", Message: "Invalid Key Value"})
 	}
 
 	return nil
@@ -168,7 +168,7 @@ func (kt *RandomPixKeyType) Value() PixKeyType {
 func (kt *CnpjPixKeyType) ValidateKeyType(key string) *internal_error.InternalError {
 	_, err := value_object.NewCNPJ(key)
 	if err != nil {
-		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetTypeName()))
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetTypeName()), internal_error.Causes{Field: "key_value", Message: "Invalid Key Value"})
 	}
 
 	return nil
@@ -177,7 +177,7 @@ func (kt *CnpjPixKeyType) ValidateKeyType(key string) *internal_error.InternalEr
 func (kt *CpfPixKeyType) ValidateKeyType(key string) *internal_error.InternalError {
 	_, err := value_object.NewCPF(key)
 	if err != nil {
-		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetTypeName()))
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetTypeName()), internal_error.Causes{Field: "key_value", Message: "Invalid Key Value"})
 	}
 	return nil
 }
@@ -185,7 +185,7 @@ func (kt *CpfPixKeyType) ValidateKeyType(key string) *internal_error.InternalErr
 func (kt *EmailPixKeyType) ValidateKeyType(key string) *internal_error.InternalError {
 	_, err := value_object.NewEmail(key)
 	if err != nil {
-		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetTypeName()))
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetTypeName()), internal_error.Causes{Field: "key_value", Message: "Invalid Key Value"})
 	}
 
 	return nil
@@ -194,11 +194,11 @@ func (kt *EmailPixKeyType) ValidateKeyType(key string) *internal_error.InternalE
 func (kt *PhonePixKeyType) ValidateKeyType(key string) *internal_error.InternalError {
 	re, err := regexp.Compile(PhoneKeyPattern)
 	if err != nil {
-		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s key matching pattern", kt.GetTypeName()))
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s key matching pattern", kt.GetTypeName()), internal_error.Causes{Field: "key_value", Message: "Invalid Key Value"})
 	}
 
 	if !re.MatchString(key) {
-		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetTypeName()))
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetTypeName()), internal_error.Causes{Field: "key_value", Message: "Invalid Key Value"})
 	}
 	return nil
 }
@@ -206,11 +206,11 @@ func (kt *PhonePixKeyType) ValidateKeyType(key string) *internal_error.InternalE
 func (kt *RandomPixKeyType) ValidateKeyType(key string) *internal_error.InternalError {
 	re, err := regexp.Compile(RandomKeyPattern)
 	if err != nil {
-		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s key matching pattern", kt.GetTypeName()))
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s key matching pattern", kt.GetTypeName()), internal_error.Causes{Field: "key_value", Message: "Invalid Key Value"})
 	}
 
 	if !re.MatchString(key) {
-		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetTypeName()))
+		return internal_error.NewBadRequestError(fmt.Sprintf("Invalid %s Key", kt.GetTypeName()), internal_error.Causes{Field: "key_value", Message: "Invalid Key Value"})
 	}
 	return nil
 }
