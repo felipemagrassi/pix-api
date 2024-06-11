@@ -13,6 +13,12 @@ type FindReceiversInput struct {
 	Name        string                `json:"name"`
 	PixKeyValue string                `json:"pix_key_value"`
 	PixKeyType  entity.PixKeyType     `json:"pix_key_type"`
+	Page        int                   `json:"page"`
+}
+
+type FindReceiversOutput struct {
+	CurrentPage int                  `json:"current_page"`
+	Receivers   []FindReceiverOutput `json:"receivers,omitempty"`
 }
 
 type FindReceiverOutput struct {
@@ -34,8 +40,8 @@ type PixKeyOutput struct {
 	KeyType  string `json:"type,omitempty"`
 }
 
-func (uc *ReceiverUseCase) FindReceivers(ctx context.Context, input FindReceiversInput) ([]FindReceiverOutput, *internal_error.InternalError) {
-	receivers, err := uc.receiverRepository.FindReceivers(ctx, input.Status, input.Name, input.PixKeyValue, input.PixKeyType)
+func (uc *ReceiverUseCase) FindReceivers(ctx context.Context, input FindReceiversInput) (*FindReceiversOutput, *internal_error.InternalError) {
+	receivers, err := uc.receiverRepository.FindReceivers(ctx, input.Status, input.Name, input.PixKeyValue, input.PixKeyType, input.Page)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +71,12 @@ func (uc *ReceiverUseCase) FindReceivers(ctx context.Context, input FindReceiver
 		receiversOutput = append(receiversOutput, output)
 	}
 
-	return receiversOutput, nil
+	output := &FindReceiversOutput{
+		CurrentPage: input.Page,
+		Receivers:   receiversOutput,
+	}
+
+	return output, nil
 }
 
 func (uc *ReceiverUseCase) FindReceiverById(ctx context.Context, receiverId pkg_entity.ID) (*FindReceiverOutput, *internal_error.InternalError) {

@@ -35,7 +35,7 @@ type Receiver struct {
 
 type ReceiverRepositoryInterface interface {
 	FindReceiver(ctx context.Context, id entity.ID) (*Receiver, *internal_error.InternalError)
-	FindReceivers(ctx context.Context, status ReceiverStatus, name, pixKeyValue string, pixKeyType PixKeyType) ([]Receiver, *internal_error.InternalError)
+	FindReceivers(ctx context.Context, status ReceiverStatus, name, pixKeyValue string, pixKeyType PixKeyType, page int) ([]Receiver, *internal_error.InternalError)
 	CreateReceiver(ctx context.Context, receiver *Receiver) *internal_error.InternalError
 	UpdateReceiver(ctx context.Context, receiver *Receiver) *internal_error.InternalError
 	DeleteManyReceivers(ctx context.Context, ids []entity.ID) *internal_error.InternalError

@@ -32,12 +32,17 @@ func (r *ReceiverController) FindReceivers(c *gin.Context) {
 	if convErr != nil {
 		pixKeyType = -1
 	}
+	pageInt, convErr := strconv.Atoi(c.Query("page"))
+	if convErr != nil {
+		pageInt = 1
+	}
 
 	findReceiverInput := receiver_usecase.FindReceiversInput{
 		Status:      entity.ReceiverStatus(intStatus),
 		Name:        name,
 		PixKeyValue: pixKeyValue,
 		PixKeyType:  entity.PixKeyType(pixKeyType),
+		Page:        pageInt,
 	}
 
 	receivers, err := r.receiverUseCase.FindReceivers(c.Request.Context(), findReceiverInput)

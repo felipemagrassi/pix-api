@@ -49,7 +49,7 @@ func (r *ReceiverRepository) FindReceiver(ctx context.Context, id pkg_entity.ID)
 	return &entity, nil
 }
 
-func (r *ReceiverRepository) FindReceivers(ctx context.Context, status entity.ReceiverStatus, name, pixKeyValue string, pixKeyType entity.PixKeyType) ([]entity.Receiver, *internal_error.InternalError) {
+func (r *ReceiverRepository) FindReceivers(ctx context.Context, status entity.ReceiverStatus, name, pixKeyValue string, pixKeyType entity.PixKeyType, page int) ([]entity.Receiver, *internal_error.InternalError) {
 	var receivers []entity.Receiver
 
 	fmt.Printf("status: %d, name: %s, pixKeyValue: %s, pixKeyType: %d\n", status, name, pixKeyValue, pixKeyType)
@@ -77,6 +77,12 @@ func (r *ReceiverRepository) FindReceivers(ctx context.Context, status entity.Re
 		args = append(args, pixKeyType)
 		baseQuery += " AND pix_key_type = $" + strconv.Itoa(len(args))
 	}
+
+	limit := 10
+	offset := (page - 1) * limit
+
+	baseQuery += " ORDER BY created_at DESC"
+	baseQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
 
 	fmt.Printf(baseQuery)
 

@@ -22,7 +22,7 @@ type ReceiverUseCaseInterface interface {
 	FindReceivers(
 		ctx context.Context,
 		input FindReceiversInput,
-	) ([]FindReceiverOutput, *internal_error.InternalError)
+	) (*FindReceiversOutput, *internal_error.InternalError)
 
 	FindReceiverById(
 		ctx context.Context,
