@@ -10,6 +10,14 @@ Run the following command to start the project:
 make up
 ```
 
+## Seeding the database
+
+Run the following command to seed the database with sample accounts
+
+```bash
+make seed
+```
+
 ## Running the tests
 
 Run the following command to run the tests:
