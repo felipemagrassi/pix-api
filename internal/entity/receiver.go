@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"context"
 	"time"
 
 	"github.com/felipemagrassi/pix-api/internal/internal_error"
@@ -31,7 +32,12 @@ type Receiver struct {
 	UpdatedAt     time.Time
 }
 
-type ReceiverRepositoryInterface interface{}
+type ReceiverRepositoryInterface interface {
+	FindReceiver(ctx context.Context, id entity.ID) (*Receiver, *internal_error.InternalError)
+	CreateReceiver(ctx context.Context, receiver *Receiver) *internal_error.InternalError
+	UpdateReceiver(ctx context.Context, receiver *Receiver) *internal_error.InternalError
+	DeleteManyReceivers(ctx context.Context, ids []entity.ID) *internal_error.InternalError
+}
 
 func NewReceiver(
 	document, pixKeyValue, pixKeyType, name, email string,
