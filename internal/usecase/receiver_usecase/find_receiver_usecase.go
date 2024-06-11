@@ -34,7 +34,7 @@ type PixKeyOutput struct {
 	KeyType  string `json:"type"`
 }
 
-func (uc *ReceiverUseCase) FindReceivers(ctx context.Context, input FindReceiversInput) ([]FindReceiverOutput, error) {
+func (uc *ReceiverUseCase) FindReceivers(ctx context.Context, input FindReceiversInput) ([]FindReceiverOutput, *internal_error.InternalError) {
 	return nil, nil
 }
 

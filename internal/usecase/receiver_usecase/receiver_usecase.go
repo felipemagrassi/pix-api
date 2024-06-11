@@ -27,12 +27,12 @@ type ReceiverUseCaseInterface interface {
 	FindReceivers(
 		ctx context.Context,
 		input FindReceiversInput,
-	) ([]entity.Receiver, *internal_error.InternalError)
+	) ([]FindReceiverOutput, *internal_error.InternalError)
 
 	FindReceiverById(
 		ctx context.Context,
 		receiverId pkg_entity.ID,
-	) (*entity.Receiver, *internal_error.InternalError)
+	) (*FindReceiverOutput, *internal_error.InternalError)
 
 	DeleteReceivers(
 		ctx context.Context,

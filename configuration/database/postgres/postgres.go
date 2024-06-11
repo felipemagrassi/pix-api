@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"runtime"
 
 	"github.com/felipemagrassi/pix-api/configuration/logger"
 	"github.com/golang-migrate/migrate/v4"
@@ -25,13 +24,7 @@ func InitializeDatabase(ctx context.Context, databaseURL string) (*sqlx.DB, erro
 		return nil, err
 	}
 
-	_, path, _, ok := runtime.Caller(0)
-	if !ok {
-		logger.Info("error getting migration path")
-		return nil, err
-	}
-
-	migrationsSource := "file://" + path + "/db/migrations"
+	migrationsSource := "file://db/migrations"
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
 		logger.Error("error creating migration driver", err)

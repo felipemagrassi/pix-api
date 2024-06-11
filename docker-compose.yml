@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=db
+    env_file:
+      - cmd/api/.env
+    command: sh -c "/api"
+    networks:
+      - localNetwork
+
+  db:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+    - POSTGRES_DB=receivers
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres
+    env_file:
+      - cmd/api/.env
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - localNetwork
+
+volumes:
+  db:
+    driver: local
+
+networks:
+  localNetwork:
+    driver: bridge

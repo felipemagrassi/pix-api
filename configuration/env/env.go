@@ -1,6 +1,10 @@
 package env
 
-import "github.com/spf13/viper"
+import (
+	"os"
+
+	"github.com/joho/godotenv"
+)
 
 type conf struct {
 	DBDriver      string `mapstructure:"DB_DRIVER"`
@@ -18,20 +22,18 @@ func (c *conf) setDBUrl() {
 }
 
 func LoadConfig(path string) (*conf, error) {
+	if err := godotenv.Load(path); err != nil {
+		return nil, err
+	}
 	c := &conf{}
-	viper.SetConfigName("config")
-	viper.SetConfigType("env")
-	viper.AddConfigPath(path)
-	viper.SetConfigFile(".env")
-	viper.AutomaticEnv()
 
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
-	}
-
-	if err := viper.Unmarshal(c); err != nil {
-		return nil, err
-	}
+	c.DBDriver = os.Getenv("DB_DRIVER")
+	c.DBHost = os.Getenv("DB_HOST")
+	c.DBPort = os.Getenv("DB_PORT")
+	c.DBUser = os.Getenv("DB_USER")
+	c.DBPassword = os.Getenv("DB_PASSWORD")
+	c.DBName = os.Getenv("DB_NAME")
+	c.WebServerPort = os.Getenv("WEB_SERVER_PORT")
 
 	c.setDBUrl()
 

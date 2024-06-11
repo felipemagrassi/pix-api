@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
+	"log"
+	"os"
 
 	"github.com/felipemagrassi/pix-api/configuration/database/postgres"
 	"github.com/felipemagrassi/pix-api/configuration/env"
-	"github.com/felipemagrassi/pix-api/configuration/logger"
 	"github.com/felipemagrassi/pix-api/internal/infra/api/web/controller/receiver_controller"
 	"github.com/felipemagrassi/pix-api/internal/infra/database/receiver_repository"
 	"github.com/felipemagrassi/pix-api/internal/usecase/receiver_usecase"
@@ -16,16 +17,16 @@ import (
 func main() {
 	ctx := context.Background()
 
-	config, err := env.LoadConfig(".")
+	config, err := env.LoadConfig("cmd/api/.env")
 	if err != nil {
-		logger.Error("error loading config", err)
-		return
+		log.Fatal(err)
+		os.Exit(1)
 	}
 
 	db, err := postgres.InitializeDatabase(ctx, config.DBUrl)
 	if err != nil {
-		logger.Error("error initializing database", err)
-		return
+		log.Fatal(err)
+		os.Exit(1)
 	}
 
 	defer db.Close()
@@ -33,6 +34,14 @@ func main() {
 	receiverController := initDependencies(db)
 
 	router := gin.Default()
+
+	router.GET("/receiver", receiverController.FindReceivers)
+	router.GET("/receiver/:receiverId", receiverController.FindReceiverById)
+	router.POST("/receiver", receiverController.CreateReceiver)
+	router.PUT("/receiver/draft/:receiverId", receiverController.UpdateDraftReceiver)
+	router.PUT("/receiver/:receiverId", receiverController.UpdateReceiverEmail)
+	router.DELETE("/receiver", receiverController.DeleteReceivers)
+
 	router.Run(config.WebServerPort)
 }
 
