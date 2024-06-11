@@ -6,6 +6,9 @@ test: go test ./... --coverprofile coverage.out
 up:
 	docker-compose up -d --build
 
+seed: 
+	docker-compose exec app go run scripts/seed.go
+
 cover:
 	go tool cover -html coverage.out
 

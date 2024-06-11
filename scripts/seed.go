@@ -14,6 +14,7 @@ import (
 
 var (
 	Banks          = []string{"Bradesco", "Itau", "Caixa", "Nubank", "Inter"}
+	Status         = []entity.ReceiverStatus{entity.Valid, entity.Draft}
 	Offices        = []string{"0001", "0002", "0003", "0004", "0005"}
 	AccountNumbers = []string{"123456", "654321", "987654", "456789", "321654"}
 	PixKey         = map[string]string{"email": "test@email.com", "cpf": "12345678901", "phone": "+5511999999999", "random": "7c7a2ba0-3fda-4f76-8c44-df1f8c1289ba", "cnpj": "41299131000107"}
@@ -45,11 +46,11 @@ func main() {
 	}
 
 	for i := 0; i < 15; i++ {
-		seedReceiver(receiverRepo, PixKey["cpf"], PixKey["cpf"], "cpf", randomArrayElement(RandomNames), randomArrayElement(RandomEmails))
-		seedReceiver(receiverRepo, PixKey["cpf"], PixKey["email"], "email", randomArrayElement(RandomNames), randomArrayElement(RandomEmails))
-		seedReceiver(receiverRepo, PixKey["cnpj"], PixKey["phone"], "phone", randomArrayElement(RandomNames), randomArrayElement(RandomEmails))
-		seedReceiver(receiverRepo, PixKey["cnpj"], PixKey["random"], "random", randomArrayElement(RandomNames), randomArrayElement(RandomEmails))
-		seedReceiver(receiverRepo, PixKey["cnpj"], PixKey["cnpj"], "cnpj", randomArrayElement(RandomNames), randomArrayElement(RandomEmails))
+		seedReceiver(receiverRepo, PixKey["cpf"], PixKey["cpf"], "cpf", randomArrayElement(RandomNames), randomArrayElement(RandomEmails), Status[rand.Intn(len(Status))])
+		seedReceiver(receiverRepo, PixKey["cpf"], PixKey["email"], "email", randomArrayElement(RandomNames), randomArrayElement(RandomEmails), Status[rand.Intn(len(Status))])
+		seedReceiver(receiverRepo, PixKey["cnpj"], PixKey["phone"], "phone", randomArrayElement(RandomNames), randomArrayElement(RandomEmails), Status[rand.Intn(len(Status))])
+		seedReceiver(receiverRepo, PixKey["cnpj"], PixKey["random"], "random", randomArrayElement(RandomNames), randomArrayElement(RandomEmails), Status[rand.Intn(len(Status))])
+		seedReceiver(receiverRepo, PixKey["cnpj"], PixKey["cnpj"], "cnpj", randomArrayElement(RandomNames), randomArrayElement(RandomEmails), Status[rand.Intn(len(Status))])
 	}
 
 	res, err := db.Query("SELECT COUNT(*) FROM receivers")
@@ -68,7 +69,7 @@ func main() {
 	log.Printf("Total of receivers: %d\n", count)
 }
 
-func seedReceiver(repo entity.ReceiverRepositoryInterface, document, pixKeyValue, pixKeyType, name, email string) {
+func seedReceiver(repo entity.ReceiverRepositoryInterface, document, pixKeyValue, pixKeyType, name, email string, status entity.ReceiverStatus) {
 	receiver, err := entity.NewReceiver(
 		document,
 		pixKeyValue,
@@ -82,6 +83,7 @@ func seedReceiver(repo entity.ReceiverRepositoryInterface, document, pixKeyValue
 
 	receiver.Bank, receiver.Office, receiver.AccountNumber = seedBank()
 	receiver.PixKey, err = entity.NewPixKey(pixKeyValue, pixKeyType)
+	receiver.Status = status
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -91,7 +93,7 @@ func seedReceiver(repo entity.ReceiverRepositoryInterface, document, pixKeyValue
 		log.Fatal(err)
 	}
 
-	log.Printf("Receiver created: %s, %s, %s, %s, %s, %s, %s, %s\n", receiver.ReceiverId, receiver.Name, receiver.Email, receiver.Bank, receiver.Office, receiver.AccountNumber, receiver.PixKey.KeyValue, receiver.PixKey.KeyType)
+	log.Printf("Receiver created: %s, %s, %s, %s, %s, %s, %s, %s, %s\n", receiver.ReceiverId, receiver.Name, receiver.Email, receiver.Bank, receiver.Office, receiver.AccountNumber, receiver.PixKey.KeyValue, receiver.PixKey.KeyType, receiver.Status)
 }
 
 func seedBank() (string, string, string) {
