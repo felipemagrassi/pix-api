@@ -52,8 +52,6 @@ func (r *ReceiverRepository) FindReceiver(ctx context.Context, id pkg_entity.ID)
 func (r *ReceiverRepository) FindReceivers(ctx context.Context, status entity.ReceiverStatus, name, pixKeyValue string, pixKeyType entity.PixKeyType, page int) ([]entity.Receiver, *internal_error.InternalError) {
 	var receivers []entity.Receiver
 
-	fmt.Printf("status: %d, name: %s, pixKeyValue: %s, pixKeyType: %d\n", status, name, pixKeyValue, pixKeyType)
-
 	baseQuery := "SELECT receiver_id, name, document, bank, office, account_number, status,pix_key, pix_key_type FROM receivers WHERE 1=1"
 
 	args := []interface{}{}
@@ -83,8 +81,6 @@ func (r *ReceiverRepository) FindReceivers(ctx context.Context, status entity.Re
 
 	baseQuery += " ORDER BY created_at DESC"
 	baseQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset)
-
-	fmt.Printf(baseQuery)
 
 	rows, err := r.Db.QueryxContext(ctx, baseQuery, args...)
 	if err != nil {
