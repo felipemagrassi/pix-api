@@ -99,10 +99,17 @@ func (r *ReceiverController) FindReceiverById(c *gin.Context) {
 
 	receiver, err := r.receiverUseCase.FindReceiverById(c.Request.Context(), receiverId)
 	if err != nil {
-		errRest := rest_err.ConvertError(err)
-		slog.Error("error finding receiver")
-		c.JSON(errRest.Code, errRest)
-		return
+		if err.Err == "not_found" {
+			errRest := rest_err.ConvertError(err)
+			c.JSON(errRest.Code, errRest)
+			return
+		} else {
+			errRest := rest_err.ConvertError(err)
+			slog.Error("error finding receiver")
+			c.JSON(errRest.Code, errRest)
+			return
+
+		}
 	}
 
 	c.JSON(200, receiver)

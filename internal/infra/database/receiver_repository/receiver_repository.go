@@ -41,6 +41,9 @@ func (r *ReceiverRepository) FindReceiver(ctx context.Context, id pkg_entity.ID)
 	var receiver ReceiverEntity
 	err := r.Db.GetContext(ctx, &receiver, "SELECT * FROM receivers WHERE receiver_id = $1", id)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return nil, internal_error.NewNotFoundError("receiver not found")
+		}
 		slog.Error("error finding receiver", err)
 		return nil, internal_error.NewNotFoundError("receiver not found")
 	}
@@ -131,7 +134,6 @@ func (r *ReceiverRepository) DeleteManyReceivers(ctx context.Context, ids []pkg_
 	}
 
 	query := fmt.Sprintf("DELETE FROM receivers WHERE receiver_id = ANY('{%s}')", idsString)
-	fmt.Println(query)
 	res, err := r.Db.ExecContext(ctx, query)
 	if err != nil {
 		slog.Error("error deleting receivers", err)

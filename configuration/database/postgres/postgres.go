@@ -3,7 +3,10 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log/slog"
+	"path/filepath"
+	"runtime"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/jmoiron/sqlx"
@@ -12,7 +15,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func InitializeDatabase(ctx context.Context, databaseURL string) (*sqlx.DB, error) {
+func InitializeDatabase(ctx context.Context, databaseURL string, migrationPath string) (*sqlx.DB, error) {
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
 		slog.Error("error connecting to database", err)
@@ -24,7 +27,17 @@ func InitializeDatabase(ctx context.Context, databaseURL string) (*sqlx.DB, erro
 		return nil, err
 	}
 
-	migrationsSource := "file://db/migrations"
+	_, path, _, ok := runtime.Caller(0)
+	if !ok {
+		slog.Error("error getting current path")
+		return nil, err
+	}
+
+	migrationsSource := fmt.Sprintf("file://%s", filepath.Join(path, migrationPath))
+	migrationFolder := "db/migrations"
+
+	migrationsSource = fmt.Sprintf("%s/%s", migrationsSource, migrationFolder)
+
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
 		slog.Error("error creating migration driver", err)
