@@ -2,6 +2,7 @@ package receiver_repository
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -116,10 +117,25 @@ func (r *ReceiverRepository) UpdateReceiver(ctx context.Context, receiver *entit
 }
 
 func (r *ReceiverRepository) DeleteManyReceivers(ctx context.Context, ids []pkg_entity.ID) *internal_error.InternalError {
-	_, err := r.Db.ExecContext(ctx, "DELETE FROM receivers WHERE receiver_id = ANY($1)", ids)
+	idsString := ""
+	for i, id := range ids {
+		if i == 0 {
+			idsString += fmt.Sprintf("\"%s\"", id.String())
+		} else {
+			idsString += fmt.Sprintf(", \"%s\"", id.String())
+		}
+	}
+
+	query := fmt.Sprintf("DELETE FROM receivers WHERE receiver_id = ANY('{%s}')", idsString)
+	fmt.Println(query)
+	res, err := r.Db.ExecContext(ctx, query)
 	if err != nil {
 		slog.Error("error deleting receivers", err)
 		return internal_error.NewInternalServerError("error deleting receivers")
+	}
+
+	if rowsAffected, _ := res.RowsAffected(); rowsAffected == 0 {
+		return internal_error.NewNotFoundError("receivers not found")
 	}
 
 	return nil
