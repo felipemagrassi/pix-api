@@ -38,5 +38,9 @@ func (e Email) Validate() *internal_error.InternalError {
 		return internal_error.NewBadRequestError("Invalid Email", internal_error.Causes{Field: "email", Message: "Invalid Email"})
 	}
 
+	if len(e.String()) > 250 {
+		return internal_error.NewBadRequestError("Invalid Email", internal_error.Causes{Field: "email", Message: "Email is too long"})
+	}
+
 	return nil
 }
