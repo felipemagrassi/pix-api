@@ -1,0 +1,32 @@
+GET http://localhost:8080/receiver
+
+###
+
+GET http://localhost:8080/receiver/381bc4f6-8743-4238-9b5b-e1fd5adc699e
+
+### 
+
+POST http://localhost:8080/receiver
+
+{
+	"name": "Felipe",
+	"document": "12345678900",
+	"email": "felipe@email.com",
+	"pix_key_value": "12345678900",
+	"pix_key_type": "cpf"
+}
+
+###
+PUT http://localhost:8080/receiver/61104f6a-a25b-4617-865a-37b7936a4ae3
+
+{
+	"name": "Felipe1",
+	"document": "12345678901",
+	"email": "felipe1@email.com",
+	"pix_key_value": "12345678901",
+	"pix_key_type": "cpf"
+}
+
+###
+DELETE http://localhost:8080/receiver
+            ?ids[0]=61104f6a-a25b-4617-865a-37b7936a4ae3
