@@ -1,0 +1,298 @@
+basePath: /receiver
+definitions:
+  entity.ReceiverStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - _
+    - Valid
+    - Draft
+  receiver_usecase.CreateReceiverInput:
+    properties:
+      document:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      pix_key_type:
+        type: string
+      pix_key_value:
+        type: string
+    type: object
+  receiver_usecase.FindReceiverOutput:
+    properties:
+      account_number:
+        type: string
+      bank:
+        type: string
+      created_at:
+        type: string
+      document:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      office:
+        type: string
+      pix_key:
+        $ref: '#/definitions/receiver_usecase.PixKeyOutput'
+      receiver_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.ReceiverStatus'
+      updated_at:
+        type: string
+    type: object
+  receiver_usecase.FindReceiversOutput:
+    properties:
+      current_page:
+        type: integer
+      receivers:
+        items:
+          $ref: '#/definitions/receiver_usecase.FindReceiverOutput'
+        type: array
+    type: object
+  receiver_usecase.PixKeyOutput:
+    properties:
+      type:
+        type: string
+      value:
+        type: string
+    type: object
+  receiver_usecase.UpdateReceiverInput:
+    properties:
+      document:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      pix_key_type:
+        type: string
+      pix_key_value:
+        type: string
+    type: object
+  rest_err.Causes:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+  rest_err.RestErr:
+    properties:
+      causes:
+        items:
+          $ref: '#/definitions/rest_err.Causes'
+        type: array
+      code:
+        type: integer
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: felipe.1magrassi@gmail.com
+    name: Felipe Magrassi
+  description: API to validate receiver PIX information
+  termsOfService: http://swagger.io/terms/
+  title: Pix Receiver API
+  version: "1.0"
+paths:
+  /:
+    delete:
+      consumes:
+      - application/json
+      description: Delete existing receivers
+      parameters:
+      - description: Receiver uuids
+        in: query
+        name: ids
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+      summary: Delete Receiver
+      tags:
+      - receivers
+    get:
+      consumes:
+      - application/json
+      description: get receivers and their pix keys
+      parameters:
+      - description: Status (1,2)
+        in: query
+        name: status
+        type: integer
+      - description: Filter by receiver name
+        in: query
+        name: name
+        type: string
+      - description: Filter by Pix Key
+        in: query
+        name: pix_key
+        type: string
+      - description: Filter by Pix Key Types (1...6)
+        in: query
+        name: pix_key_type
+        type: integer
+      - description: Current page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/receiver_usecase.FindReceiversOutput'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+      summary: Find Receivers
+      tags:
+      - receivers
+    post:
+      consumes:
+      - application/json
+      description: Create new receiver with pix keys
+      parameters:
+      - description: Receiver body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/receiver_usecase.CreateReceiverInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+      summary: Create Receiver
+      tags:
+      - receivers
+    put:
+      consumes:
+      - application/json
+      description: Update Existing receiver
+      parameters:
+      - description: Receiver id
+        in: query
+        name: receiverId
+        required: true
+        type: string
+      - description: Receiver body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/receiver_usecase.UpdateReceiverInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+      summary: Update Receiver
+      tags:
+      - receivers
+  /{id}:
+    get:
+      consumes:
+      - application/json
+      description: get receiver and its pix keys
+      parameters:
+      - description: Receiver uuid
+        in: query
+        name: receiverId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/receiver_usecase.FindReceiverOutput'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest_err.RestErr'
+      summary: Find Receiver
+      tags:
+      - receivers
+swagger: "2.0"
