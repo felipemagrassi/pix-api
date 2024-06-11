@@ -30,7 +30,8 @@ const (
 type PixKeyType int
 
 const (
-	CnpjKeyType PixKeyType = iota
+	_ PixKeyType = iota
+	CnpjKeyType
 	CpfKeyType
 	EmailKeyType
 	PhoneKeyType

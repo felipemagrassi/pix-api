@@ -16,26 +16,56 @@ type FindReceiversInput struct {
 }
 
 type FindReceiverOutput struct {
-	Id            string                `json:"id"`
-	Name          string                `json:"name"`
-	Document      string                `json:"document"`
-	Email         string                `json:"email"`
-	Status        entity.ReceiverStatus `json:"status"`
-	Bank          string                `json:"bank"`
-	Office        string                `json:"office"`
-	AccountNumber string                `json:"account_number"`
-	PixKey        PixKeyOutput          `json:"pix_key"`
+	ReceiverId    string                `json:"receiver_id,omitempty"`
+	Name          string                `json:"name,omitempty"`
+	Document      string                `json:"document,omitempty"`
+	Email         string                `json:"email,omitempty"`
+	Status        entity.ReceiverStatus `json:"status,omitempty"`
+	Bank          string                `json:"bank,omitempty"`
+	Office        string                `json:"office,omitempty"`
+	AccountNumber string                `json:"account_number,omitempty"`
+	PixKey        *PixKeyOutput         `json:"pix_key,omitempty"`
 	CreatedAt     string                `json:"created_at" time_format:"2006-01-02T15:04:05Z07:00"`
 	UpdatedAt     string                `json:"updated_at" time_format:"2006-01-02T15:04:05Z07:00"`
 }
 
 type PixKeyOutput struct {
-	KeyValue string `json:"value"`
-	KeyType  string `json:"type"`
+	KeyValue string `json:"value,omitempty"`
+	KeyType  string `json:"type,omitempty"`
 }
 
 func (uc *ReceiverUseCase) FindReceivers(ctx context.Context, input FindReceiversInput) ([]FindReceiverOutput, *internal_error.InternalError) {
-	return nil, nil
+	receivers, err := uc.receiverRepository.FindReceivers(ctx, input.Status, input.Name, input.PixKeyValue, input.PixKeyType)
+	if err != nil {
+		return nil, err
+	}
+
+	var receiversOutput []FindReceiverOutput
+	for _, receiver := range receivers {
+		output := FindReceiverOutput{
+			ReceiverId:    receiver.ReceiverId.String(),
+			Name:          receiver.Name,
+			Document:      receiver.Document.String(),
+			Email:         receiver.Email.String(),
+			Status:        receiver.GetStatus(),
+			Bank:          receiver.Bank,
+			Office:        receiver.Office,
+			AccountNumber: receiver.AccountNumber,
+			CreatedAt:     receiver.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+			UpdatedAt:     receiver.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		}
+
+		if receiver.PixKey != nil {
+			output.PixKey = &PixKeyOutput{
+				KeyValue: receiver.PixKey.KeyValue,
+				KeyType:  receiver.PixKey.KeyType.GetTypeName(),
+			}
+		}
+
+		receiversOutput = append(receiversOutput, output)
+	}
+
+	return receiversOutput, nil
 }
 
 func (uc *ReceiverUseCase) FindReceiverById(ctx context.Context, receiverId pkg_entity.ID) (*FindReceiverOutput, *internal_error.InternalError) {
@@ -45,7 +75,7 @@ func (uc *ReceiverUseCase) FindReceiverById(ctx context.Context, receiverId pkg_
 	}
 
 	return &FindReceiverOutput{
-		Id:            receiver.Id.String(),
+		ReceiverId:    receiver.ReceiverId.String(),
 		Name:          receiver.Name,
 		Document:      receiver.Document.String(),
 		Email:         receiver.Email.String(),
@@ -53,7 +83,7 @@ func (uc *ReceiverUseCase) FindReceiverById(ctx context.Context, receiverId pkg_
 		Bank:          receiver.Bank,
 		Office:        receiver.Office,
 		AccountNumber: receiver.AccountNumber,
-		PixKey: PixKeyOutput{
+		PixKey: &PixKeyOutput{
 			KeyValue: receiver.PixKey.KeyValue,
 			KeyType:  receiver.PixKey.KeyType.GetTypeName(),
 		},

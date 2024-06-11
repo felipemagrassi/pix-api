@@ -2,7 +2,9 @@ package receiver_controller
 
 import (
 	"log/slog"
+	"strconv"
 
+	"github.com/felipemagrassi/pix-api/internal/entity"
 	"github.com/felipemagrassi/pix-api/internal/usecase/receiver_usecase"
 	pkg_entity "github.com/felipemagrassi/pix-api/pkg/entity"
 	"github.com/gin-gonic/gin"
@@ -19,15 +21,27 @@ func NewReceiverController(receiverUseCase receiver_usecase.ReceiverUseCaseInter
 }
 
 func (r *ReceiverController) FindReceivers(c *gin.Context) {
-	var findReceiverInput receiver_usecase.FindReceiversInput
+	intStatus, convErr := strconv.Atoi(c.Query("status"))
+	if convErr != nil {
+		intStatus = -1
+	}
+	name := c.Query("name")
+	pixKeyValue := c.Query("pix_key_value")
+	pixKeyType, convErr := strconv.Atoi(c.Query("pix_key_type"))
+	if convErr != nil {
+		pixKeyType = -1
+	}
 
-	if err := c.ShouldBindJSON(&findReceiverInput); err != nil {
-		c.JSON(400, err)
-		return
+	findReceiverInput := receiver_usecase.FindReceiversInput{
+		Status:      entity.ReceiverStatus(intStatus),
+		Name:        name,
+		PixKeyValue: pixKeyValue,
+		PixKeyType:  entity.PixKeyType(pixKeyType),
 	}
 
 	receivers, err := r.receiverUseCase.FindReceivers(c.Request.Context(), findReceiverInput)
 	if err != nil {
+		slog.Error("error finding receivers", err)
 		c.JSON(500, err)
 		return
 	}
@@ -36,16 +50,18 @@ func (r *ReceiverController) FindReceivers(c *gin.Context) {
 }
 
 func (r *ReceiverController) FindReceiverById(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("receiverId")
 
-	receiverId, err := pkg_entity.ParseID(id)
-	if err != nil {
-		c.JSON(400, err)
+	receiverId, parseErr := pkg_entity.ParseID(id)
+	if parseErr != nil {
+		slog.Error("error parsing id", parseErr)
+		c.JSON(400, parseErr)
 		return
 	}
 
 	receiver, err := r.receiverUseCase.FindReceiverById(c.Request.Context(), receiverId)
 	if err != nil {
+		slog.Error("error finding receiver", err)
 		c.JSON(500, err)
 		return
 	}
@@ -73,11 +89,11 @@ func (r *ReceiverController) CreateReceiver(c *gin.Context) {
 }
 
 func (r *ReceiverController) UpdateReceiver(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("receiverId")
 
-	receiverId, err := pkg_entity.ParseID(id)
-	if err != nil {
-		c.JSON(400, err)
+	receiverId, parseErr := pkg_entity.ParseID(id)
+	if parseErr != nil {
+		c.JSON(400, parseErr)
 		return
 	}
 
@@ -88,7 +104,7 @@ func (r *ReceiverController) UpdateReceiver(c *gin.Context) {
 		return
 	}
 
-	err = r.receiverUseCase.UpdateReceiver(c.Request.Context(), receiverId, updateReceiverInput)
+	err := r.receiverUseCase.UpdateReceiver(c.Request.Context(), receiverId, updateReceiverInput)
 	if err != nil {
 		c.JSON(500, err)
 		return
@@ -102,9 +118,9 @@ func (r *ReceiverController) DeleteReceivers(c *gin.Context) {
 
 	receiverIds := make([]pkg_entity.ID, 0)
 	for _, id := range ids {
-		receiverId, err := pkg_entity.ParseID(id)
-		if err != nil {
-			c.JSON(400, err)
+		receiverId, parseErr := pkg_entity.ParseID(id)
+		if parseErr != nil {
+			c.JSON(400, parseErr)
 			return
 		}
 		receiverIds = append(receiverIds, receiverId)

@@ -19,7 +19,7 @@ func TestCanCreateReceiver(t *testing.T) {
 	receiver, err := NewReceiver(input["document"], input["pixKeyValue"], input["pixKeyType"], input["name"], input["email"])
 	assert.Nil(t, err)
 
-	assert.NotEmpty(t, receiver.Id)
+	assert.NotEmpty(t, receiver.ReceiverId)
 	assert.Equal(t, receiver.Name, input["name"])
 	assert.Equal(t, receiver.Email, value_object.Email(input["email"]))
 	assert.Equal(t, receiver.GetStatus(), Draft)
@@ -46,7 +46,7 @@ func TestCanCreateReceiverWithCnpj(t *testing.T) {
 	receiver, err := NewReceiver(input["document"], input["pixKeyValue"], input["pixKeyType"], input["name"], input["email"])
 	assert.Nil(t, err)
 
-	assert.NotEmpty(t, receiver.Id)
+	assert.NotEmpty(t, receiver.ReceiverId)
 	assert.Equal(t, receiver.Name, input["name"])
 	assert.Equal(t, receiver.Email, value_object.Email(input["email"]))
 	assert.Equal(t, receiver.GetStatus(), Draft)
@@ -72,7 +72,7 @@ func TestCanCreateReceiverWithoutEmail(t *testing.T) {
 	receiver, err := NewReceiver(input["document"], input["pixKeyValue"], input["pixKeyType"], input["name"], input["email"])
 	assert.Nil(t, err)
 
-	assert.NotEmpty(t, receiver.Id)
+	assert.NotEmpty(t, receiver.ReceiverId)
 	assert.Equal(t, receiver.Name, input["name"])
 	assert.Equal(t, receiver.Email, value_object.Email(input["email"]))
 	assert.Equal(t, receiver.GetStatus(), Draft)

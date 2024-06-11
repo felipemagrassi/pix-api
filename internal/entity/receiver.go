@@ -14,16 +14,17 @@ type (
 )
 
 const (
-	Valid ReceiverStatus = iota
+	_ ReceiverStatus = iota
+	Valid
 	Draft
 )
 
 type Receiver struct {
-	Id            entity.ID
+	ReceiverId    entity.ID
 	Name          string
 	Document      value_object.Document
 	Email         value_object.Email
-	status        ReceiverStatus
+	Status        ReceiverStatus
 	Bank          string
 	Office        string
 	AccountNumber string
@@ -34,6 +35,7 @@ type Receiver struct {
 
 type ReceiverRepositoryInterface interface {
 	FindReceiver(ctx context.Context, id entity.ID) (*Receiver, *internal_error.InternalError)
+	FindReceivers(ctx context.Context, status ReceiverStatus, name, pixKeyValue string, pixKeyType PixKeyType) ([]Receiver, *internal_error.InternalError)
 	CreateReceiver(ctx context.Context, receiver *Receiver) *internal_error.InternalError
 	UpdateReceiver(ctx context.Context, receiver *Receiver) *internal_error.InternalError
 	DeleteManyReceivers(ctx context.Context, ids []entity.ID) *internal_error.InternalError
@@ -55,14 +57,14 @@ func NewReceiver(
 	currentTime := time.Now()
 
 	receiver := &Receiver{
-		Id:        entity.NewID(),
-		Name:      name,
-		Document:  newDocument,
-		Email:     value_object.Email(email),
-		status:    Draft,
-		PixKey:    pixKey,
-		CreatedAt: currentTime,
-		UpdatedAt: currentTime,
+		ReceiverId: entity.NewID(),
+		Name:       name,
+		Document:   newDocument,
+		Email:      value_object.Email(email),
+		Status:     Draft,
+		PixKey:     pixKey,
+		CreatedAt:  currentTime,
+		UpdatedAt:  currentTime,
 	}
 
 	if err := receiver.Validate(); err != nil {
@@ -98,11 +100,11 @@ func (r *Receiver) Validate() *internal_error.InternalError {
 }
 
 func (r *Receiver) GetStatus() ReceiverStatus {
-	return r.status
+	return r.Status
 }
 
 func (r *Receiver) ValidateReceiverStatus() {
-	r.status = Valid
+	r.Status = Valid
 }
 
 func (r *Receiver) updateValidReceiver(email string) *internal_error.InternalError {
