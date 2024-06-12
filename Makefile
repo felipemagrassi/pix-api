@@ -9,7 +9,7 @@ test:
 up:
 	docker-compose up -d --build
 
-seed: 
+seed: up 
 	docker-compose exec app go run scripts/seed.go
 
 cover:

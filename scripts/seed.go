@@ -32,7 +32,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	db, err := postgres.InitializeDatabase(ctx, config.DBUrl)
+	db, err := postgres.InitializeDatabase(ctx, config.DBUrl, "../../../..")
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
