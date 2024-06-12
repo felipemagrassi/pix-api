@@ -94,7 +94,7 @@ func seedReceiver(repo entity.ReceiverRepositoryInterface, document, pixKeyValue
 		log.Fatal(err)
 	}
 
-	slog.Info("Receiver created: %s, %s, %s, %s, %s, %s, %s, %s, %s\n", receiver.ReceiverId, receiver.Name, receiver.Email, receiver.Bank, receiver.Office, receiver.AccountNumber, receiver.PixKey.KeyValue, receiver.PixKey.KeyType, receiver.Status)
+	slog.Info("Receiver created: ", receiver.ReceiverId.String(), receiver.Name, receiver.Email, receiver.Bank, receiver.Office, receiver.AccountNumber, receiver.PixKey.KeyValue, receiver.PixKey.KeyType, receiver.Status)
 }
 
 func seedBank() (string, string, string) {
