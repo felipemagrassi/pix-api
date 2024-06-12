@@ -14,6 +14,10 @@ services:
     command: sh -c "/api"
     networks:
       - localNetwork
+    depends_on:
+      db:
+        condition: service_healthy
+
 
   db:
     image: postgres:15
@@ -31,6 +35,11 @@ services:
       - db:/var/lib/postgresql/data
     networks:
       - localNetwork
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   db:
