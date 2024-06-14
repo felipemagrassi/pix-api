@@ -18,7 +18,7 @@ type FindReceiversInput struct {
 
 type FindReceiversOutput struct {
 	CurrentPage int                  `json:"current_page"`
-	Receivers   []FindReceiverOutput `json:"receivers,omitempty"`
+	Receivers   []FindReceiverOutput `json:"receivers"`
 }
 
 type FindReceiverOutput struct {
@@ -46,7 +46,7 @@ func (uc *ReceiverUseCase) FindReceivers(ctx context.Context, input FindReceiver
 		return nil, err
 	}
 
-	var receiversOutput []FindReceiverOutput
+	receiversOutput := make([]FindReceiverOutput, 0)
 	for _, receiver := range receivers {
 		output := FindReceiverOutput{
 			ReceiverId:    receiver.ReceiverId.String(),

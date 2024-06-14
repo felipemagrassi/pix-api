@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +13,7 @@ import (
 	"time"
 
 	pg "github.com/felipemagrassi/pix-api/configuration/database/postgres"
+	"github.com/felipemagrassi/pix-api/configuration/rest_err"
 	"github.com/felipemagrassi/pix-api/internal/infra/api/web/controller/receiver_controller"
 	"github.com/felipemagrassi/pix-api/internal/infra/database/receiver_repository"
 	"github.com/felipemagrassi/pix-api/internal/usecase/receiver_usecase"
@@ -93,13 +96,62 @@ func (suite *ReceiverTestSuite) TestCanCreateAndFetchReceivers() {
 
 	assert.Equal(suite.T(), http.StatusNoContent, res.StatusCode)
 
-	req, err = http.NewRequest(http.MethodGet, server.URL+"/receiver/"+id, nil)
+	req, err = http.NewRequest(http.MethodGet, server.URL+"/receiver", nil)
 	assert.NoError(suite.T(), err)
 
 	res, err = client.Do(req)
 	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), http.StatusOK, res.StatusCode)
+}
 
-	assert.Equal(suite.T(), http.StatusNotFound, res.StatusCode)
+func (suite *ReceiverTestSuite) TestCantCreateWithInvalidKeys() {
+	server := initServer(suite.Db)
+	defer server.Close()
+
+	body := []byte(`{"name": "Felipe", "document": "12345678900", "email": "felipe@test.com", "pix_key_value": "12345", "pix_key_type": "cpf"}`)
+
+	jsonBody := bytes.NewReader(body)
+
+	client := server.Client()
+	req, err := http.NewRequest(http.MethodPost, server.URL+"/receiver", jsonBody)
+	assert.NoError(suite.T(), err)
+
+	res, err := client.Do(req)
+	assert.NoError(suite.T(), err)
+
+	responseBody, err := io.ReadAll(res.Body)
+	assert.NoError(suite.T(), err)
+	defer res.Body.Close()
+
+	var restErr *rest_err.RestErr
+	err = json.Unmarshal(responseBody, &restErr)
+	assert.NoError(suite.T(), err)
+
+	fmt.Println(restErr)
+
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), http.StatusBadRequest, res.StatusCode)
+	assert.Equal(suite.T(), "Invalid pix key", restErr.Message)
+	assert.Equal(suite.T(), "key_value", restErr.Causes[0].Field)
+	assert.Equal(suite.T(), "Invalid Key Value", restErr.Causes[0].Message)
+	assert.Equal(suite.T(), "bad_request", restErr.Err)
+	assert.Equal(suite.T(), 400, restErr.Code)
+
+	req, err = http.NewRequest(http.MethodGet, server.URL+"/receiver", nil)
+	assert.NoError(suite.T(), err)
+
+	res, err = client.Do(req)
+
+	responseBody, err = io.ReadAll(res.Body)
+	assert.NoError(suite.T(), err)
+	defer res.Body.Close()
+
+	var findReceiversOutput *receiver_usecase.FindReceiversOutput
+	err = json.Unmarshal(responseBody, &findReceiversOutput)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), http.StatusOK, res.StatusCode)
+	assert.Equal(suite.T(), []receiver_usecase.FindReceiverOutput{}, findReceiversOutput.Receivers)
+	assert.Equal(suite.T(), 1, findReceiversOutput.CurrentPage)
 }
 
 func initServer(db *sqlx.DB) *httptest.Server {
@@ -130,7 +182,7 @@ type ReceiverTestSuite struct {
 	Container testcontainers.Container
 }
 
-func (suite *ReceiverTestSuite) SetupSuite() {
+func (suite *ReceiverTestSuite) SetupTest() {
 	ctx := context.Background()
 
 	dbName := "receivers"
@@ -161,11 +213,8 @@ func (suite *ReceiverTestSuite) SetupSuite() {
 }
 
 func (suite *ReceiverTestSuite) TearDownTest() {
-	suite.Db.Close()
-}
-
-func (suite *ReceiverTestSuite) TearDownSuite() {
 	ctx := context.Background()
+	suite.Db.Close()
 	suite.NoError(suite.Container.Terminate(ctx))
 }
 

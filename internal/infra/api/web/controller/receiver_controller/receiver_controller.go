@@ -66,6 +66,7 @@ func (r *ReceiverController) FindReceivers(c *gin.Context) {
 	if err != nil {
 		errRest := rest_err.ConvertError(err)
 		slog.Error("error finding receivers")
+		slog.Error(err.Error())
 		c.JSON(errRest.Code, errRest)
 		return
 	}

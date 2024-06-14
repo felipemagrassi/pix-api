@@ -87,6 +87,7 @@ func (r *ReceiverRepository) FindReceivers(ctx context.Context, status entity.Re
 
 	rows, err := r.Db.QueryxContext(ctx, baseQuery, args...)
 	if err != nil {
+		fmt.Println(err)
 		return nil, internal_error.NewInternalServerError("error finding receivers", err)
 	}
 
@@ -94,6 +95,7 @@ func (r *ReceiverRepository) FindReceivers(ctx context.Context, status entity.Re
 		var receiver ReceiverEntity
 		err := rows.StructScan(&receiver)
 		if err != nil {
+			fmt.Println(err)
 			return nil, internal_error.NewInternalServerError("error finding receivers", err)
 		}
 
